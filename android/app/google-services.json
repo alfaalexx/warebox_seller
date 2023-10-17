@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "746599558975",
+    "project_id": "warebox-8279e",
+    "storage_bucket": "warebox-8279e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:746599558975:android:ce9430e5242b46d73d6d8a",
+        "android_client_info": {
+          "package_name": "com.example.warebox_buyer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsPtS-6hR8yABPhOu8OPDDE6xssZEDdl0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:746599558975:android:81aec90ba197b06e3d6d8a",
+        "android_client_info": {
+          "package_name": "com.example.warebox_seller"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsPtS-6hR8yABPhOu8OPDDE6xssZEDdl0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
