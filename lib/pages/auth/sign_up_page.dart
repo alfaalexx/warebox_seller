@@ -6,7 +6,6 @@ import 'package:warebox_seller/utils/warebox_icon_icons.dart';
 import 'package:warebox_seller/pages/auth/sign_in_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../dashboard/dashboard_screen.dart';
 import '../../utils/color_resources.dart';
 import '../../utils/dimensions.dart';
 
@@ -51,6 +50,11 @@ class _RegisterPageState extends State<RegisterPage> {
         'isAdmin': false,
       });
 
+      // Beralih ke halaman login (atau tindakan yang sesuai).
+      Navigator.pushAndRemoveUntil(context,
+          MaterialPageRoute(builder: (context) {
+        return const LoginPage();
+      }), (route) => false);
       // Tampilkan pesan sukses dan instruksi verifikasi email.
       showDialog(
           context: context,
@@ -69,15 +73,47 @@ class _RegisterPageState extends State<RegisterPage> {
               ],
             );
           });
-
-      // Beralih ke halaman login (atau tindakan yang sesuai).
-      Navigator.pushAndRemoveUntil(context,
-          MaterialPageRoute(builder: (context) {
-        return const LoginPage();
-      }), (route) => false);
-      print("User Registered: ${userCredential.user!.email}");
+      // print("User Registered: ${userCredential.user!.email}");
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        // print('The account already exists for that email.');
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("An Error Occurred"),
+                content: Text("The account already exists for that email."),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text("OK"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            });
+      }
     } catch (e) {
-      print("Error During Registration: $e");
+      // print("Error During Registration: $e");
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("An Error Occurred"),
+              content: Text("Error During Registration: $e"),
+              actions: <Widget>[
+                TextButton(
+                  child: Text("OK"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          });
     }
   }
 
@@ -99,7 +135,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Container(
                   alignment: Alignment.topLeft,
                   margin: const EdgeInsets.only(left: 5, right: 5),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Sign Up', style: extraBold),
@@ -117,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: [
                         Container(
                           margin: const EdgeInsets.only(left: 5, right: 5),
-                          child: const Text(
+                          child: Text(
                             'Username',
                             style: titleHeader2,
                           ),
@@ -170,7 +206,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         // Email
                         Container(
                           margin: const EdgeInsets.only(left: 5, right: 5),
-                          child: const Text(
+                          child: Text(
                             'Email Address',
                             style: titleHeader2,
                           ),
@@ -222,7 +258,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         const SizedBox(height: 20),
                         Container(
                           margin: const EdgeInsets.only(left: 5, right: 5),
-                          child: const Text(
+                          child: Text(
                             'Password',
                             style: titleHeader2,
                           ),
@@ -332,7 +368,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       });
                                     },
                                   ),
-                                  const Text(
+                                  Text(
                                     'By continuing you accept our Privacy Policy and\nTerm of Use',
                                     style: titilliumRegular,
                                   ),
@@ -404,7 +440,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                                 alignment:
                                     const AlignmentDirectional(0.00, 0.00),
-                                child: const Text(
+                                child: Text(
                                   'OR',
                                   style: pjsMedium16,
                                 ),
@@ -436,7 +472,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     width: 1,
                                   ),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisSize: MainAxisSize
                                       .min, // Memastikan tombol hanya mengambil ruang yang dibutuhkan
                                   children: [
@@ -463,7 +499,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 'Already have an account? ',
                                 style: pjsSemiBold16,
                               ),
@@ -480,7 +516,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 },
                                 style: TextButton.styleFrom(
                                     backgroundColor: Colors.transparent),
-                                child: const Text(
+                                child: Text(
                                   'Sign In',
                                   style: pjsExtraBold16RedUnderlined,
                                 ),

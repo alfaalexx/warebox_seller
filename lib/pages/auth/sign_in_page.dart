@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:warebox_seller/pages/forgot_password/forgot_password_page.dart';
 import 'package:warebox_seller/utils/custom_themes.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:warebox_seller/pages/auth/sign_up_page.dart';
@@ -27,46 +28,136 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
 
   void _handleLogin() async {
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: _email,
-        password: _password,
+    if (_email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Email is required'),
+          backgroundColor: Colors.red,
+        ),
       );
+    } else if (_password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password is required'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      try {
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: _email,
+          password: _password,
+        );
 
-      if (userCredential.user != null) {
-        // Cek apakah email pengguna sudah diverifikasi.
-        if (userCredential.user!.emailVerified) {
-          Navigator.pushAndRemoveUntil(context,
-              MaterialPageRoute(builder: (context) {
-            return const DashboardScreen();
-          }), (route) => false);
-          print("User Logged In: ${userCredential.user!.email}");
-        } else {
-          // Pengguna belum memverifikasi alamat email mereka.
-          // Tampilkan pesan kesalahan atau tindakan yang sesuai.
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text("Email Verification Required"),
-                content: Text("Please verify your email before logging in."),
-                actions: <Widget>[
-                  TextButton(
-                    child: Text("OK"),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-          // Logout pengguna karena mereka belum memverifikasi email mereka.
-          await _auth.signOut();
+        if (userCredential.user != null) {
+          // Cek apakah email pengguna sudah diverifikasi.
+          if (userCredential.user!.emailVerified) {
+            Navigator.pushAndRemoveUntil(context,
+                MaterialPageRoute(builder: (context) {
+              return const DashboardScreen();
+            }), (route) => false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Login Successfully'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            // Pengguna belum memverifikasi alamat email mereka.
+            // Tampilkan pesan kesalahan atau tindakan yang sesuai.
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Email Verification Required"),
+                  content: Text("Please verify your email before logging in."),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text("Resend Email Verification"), // Tombol baru
+                      onPressed: () async {
+                        if (userCredential.user != null &&
+                            !userCredential.user!.emailVerified) {
+                          try {
+                            await userCredential.user!.sendEmailVerification();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Email verification sent'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } catch (e) {
+                            print("Error sending verification email: $e");
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                    Text('Error resending verification email'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        } else if (userCredential.user != null &&
+                            userCredential.user!.emailVerified) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Email is already verified'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('No user currently signed in'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                        Navigator.pop(
+                            context); // Tutup dialog setelah tombol ditekan
+                      },
+                    ),
+                    TextButton(
+                      child: Text("OK"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+
+            // Logout pengguna karena mereka belum memverifikasi email mereka.
+            await _auth.signOut();
+          }
         }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          print("User not found for email: $_email");
+          // Tindakan untuk kesalahan "user not found"
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("No user found for that email."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else if (e.code == 'wrong-password') {
+          // Tindakan untuk kesalahan "wrong password"
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Wrong password provided for that user."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error During Login: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+        // print("Error During Login: $e");
       }
-    } catch (e) {
-      print("Error During Login: $e");
     }
   }
 
@@ -95,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   alignment: Alignment.topLeft,
                   margin: const EdgeInsets.only(left: 5, right: 5),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Sign In', style: extraBold),
@@ -106,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   alignment: Alignment.topLeft,
                   margin: const EdgeInsets.only(left: 5, right: 5),
-                  child: const Text(
+                  child: Text(
                       'Sign in and get your space personalized \nwith our Warehouse.',
                       style: titleHeader),
                 ),
@@ -121,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         Container(
                           margin: const EdgeInsets.only(left: 5, right: 5),
-                          child: const Text(
+                          child: Text(
                             'Email Address',
                             style: titleHeader2,
                           ),
@@ -140,6 +231,11 @@ class _LoginPageState extends State<LoginPage> {
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
                                   color: Color(0x00000000), width: 2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.red, width: 2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             focusedBorder: OutlineInputBorder(
@@ -169,7 +265,7 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
                         const SizedBox(height: 20),
-                        const Text(
+                        Text(
                           'Password',
                           style: titleHeader2,
                         ),
@@ -188,6 +284,11 @@ class _LoginPageState extends State<LoginPage> {
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
                                   color: Color(0x00000000), width: 2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.red, width: 2),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             focusedBorder: OutlineInputBorder(
@@ -236,20 +337,28 @@ class _LoginPageState extends State<LoginPage> {
                                     value: false,
                                     onChanged: (val) {},
                                   ),
-                                  const Text(
+                                  Text(
                                     'Remember Me',
                                     style: titilliumRegular,
                                   ),
                                 ],
                               ),
                               InkWell(
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ForgotPasswordPage(),
+                                    ),
+                                  );
+                                },
                                 child: Text(
                                   'Forgot Password',
                                   style: titilliumRegular.copyWith(
-                                    color:
-                                        ColorResources.getLightSkyBlue(context),
-                                  ),
+                                      color: ColorResources.getLightSkyBlue(
+                                          context),
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ],
@@ -278,7 +387,7 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
@@ -319,7 +428,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 alignment:
                                     const AlignmentDirectional(0.00, 0.00),
-                                child: const Text(
+                                child: Text(
                                   'OR',
                                   style: pjsMedium16,
                                 ),
@@ -351,7 +460,7 @@ class _LoginPageState extends State<LoginPage> {
                                     width: 1,
                                   ),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisSize: MainAxisSize
                                       .min, // Memastikan tombol hanya mengambil ruang yang dibutuhkan
                                   children: [
@@ -378,7 +487,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 'Don’t have an account? ',
                                 style: pjsSemiBold16,
                               ),
@@ -391,7 +500,7 @@ class _LoginPageState extends State<LoginPage> {
                                 },
                                 style: TextButton.styleFrom(
                                     backgroundColor: Colors.transparent),
-                                child: const Text(
+                                child: Text(
                                   'Sign Up',
                                   style: pjsExtraBold16RedUnderlined,
                                 ),

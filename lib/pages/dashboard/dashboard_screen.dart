@@ -15,7 +15,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     const HomeScreen(),
     const Center(
       child: Text('Null'),
-    ),const Center(
+    ),
+    const Center(
       child: Text('Null'),
     ),
   ];
@@ -37,15 +38,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Beranda',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
-            label: 'Notifikasi',
+            label: 'Notification',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Profil',
+            label: 'Profile',
           ),
         ],
       ),

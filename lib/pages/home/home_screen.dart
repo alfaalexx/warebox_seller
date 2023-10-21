@@ -64,6 +64,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       MaterialPageRoute(builder: (context) {
                     return const LoginPage();
                   }), (route) => false);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Logout Successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
                 },
                 child: const Text("Logout"),
               )
