@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:warebox_seller/pages/home/home_screen.dart';
+import 'package:warebox_seller/pages/profile/profile_page.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -16,9 +17,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     const Center(
       child: Text('Null'),
     ),
-    const Center(
-      child: Text('Null'),
-    ),
+    const ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -34,7 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.redAccent, // Warna ikon ketika aktif
+        selectedItemColor: Color(0xFF2E9496), // Warna ikon ketika aktif
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

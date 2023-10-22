@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warebox_seller/utils/custom_themes.dart';
 import 'package:warebox_seller/utils/warebox_icon_icons.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart'; // Import Firebase Core
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Core
 
 import '../../utils/dimensions.dart';
 
@@ -14,7 +13,6 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
 
   Future<void> _resetPassword() async {
