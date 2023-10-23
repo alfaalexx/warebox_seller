@@ -37,6 +37,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
+    // Periksa status otentikasi pengguna.
     loadProfileData();
   }
 
@@ -72,10 +73,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  Future<void> _uploadProfileImage() async {
+  Future<void> _uploadProfileImage(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile =
-        await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile == null) {
       return;
@@ -85,8 +85,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
       isLoading = true;
     });
 
-    Reference reference =
-        _storage.ref().child('profile_images/${DateTime.now()}.jpg');
+    final User? user = _auth.currentUser;
+    if (user == null) {
+      // Handle the case where there is no authenticated user.
+      return;
+    }
+
+    Reference reference = _storage.ref().child(
+        'profile_images/${user.uid}_${DateTime.now().millisecondsSinceEpoch}.jpg');
     UploadTask uploadTask = reference.putFile(File(pickedFile.path));
 
     try {
@@ -127,6 +133,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       });
 
       FirebaseFirestore.instance.collection('profile').doc(uid).set({
+        'uid': uid,
         'username': updatedName,
         'email': updatedEmail,
         'gender': selectedGender,
@@ -186,7 +193,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     GestureDetector(
-                      onTap: _uploadProfileImage,
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text("Choose an option"),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    _uploadProfileImage(ImageSource.camera);
+                                  },
+                                  child: Text("Camera"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    _uploadProfileImage(ImageSource.gallery);
+                                  },
+                                  child: Text("Gallery"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                       child: profileImageUrl != null
                           ? Image.network(
                               profileImageUrl!,
