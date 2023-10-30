@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warebox_seller/pages/home/home_screen.dart';
 import 'package:warebox_seller/pages/profile/profile_page.dart';
+import 'package:warebox_seller/pages/warehouse/warehouse_page.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -14,9 +15,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final List<Widget> _pages = [
     const HomeScreen(),
-    const Center(
-      child: Text('Null'),
-    ),
+    const MyWarehousePage(),
     const ProfilePage(),
   ];
 
@@ -40,8 +39,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notification',
+            icon: ImageIcon(AssetImage("assets/images/myWarehouseIcon.png")),
+            label: 'My Warehouse',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
