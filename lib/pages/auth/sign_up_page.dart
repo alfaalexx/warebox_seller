@@ -47,7 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
         'uid': userCredential.user!.uid,
         'name': _name,
         'email': _email,
-        'isAdmin': false,
+        'isAdmin': true,
       });
 
       // Beralih ke halaman login (atau tindakan yang sesuai).

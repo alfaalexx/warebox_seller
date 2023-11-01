@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:warebox_seller/pages/warehouse/warehouse_page.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
@@ -110,7 +110,24 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Warehouse')),
+      appBar: AppBar(
+        title: Text(
+          'New Warehouse',
+          textAlign: TextAlign.start,
+          style: GoogleFonts.plusJakartaSans(
+              fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.black),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {},
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(children: [
