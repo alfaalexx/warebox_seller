@@ -5,6 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:warebox_seller/pages/warehouse/warehouse_page.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as Path;
 
 class AddWarehousePage extends StatefulWidget {
   const AddWarehousePage({Key? key}) : super(key: key);
@@ -33,6 +37,8 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   double pricePerWeek = 0.0;
   double pricePerMonth = 0.0;
   double pricePerYear = 0.0;
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   // Controller untuk setiap field
   final itemNameController = TextEditingController();
@@ -67,11 +73,45 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
     }
   }
 
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(
+        source: ImageSource
+            .gallery); // Ganti dengan ImageSource.camera untuk menggunakan kamera
+
+    setState(() {
+      _imageFile = File(pickedFile!.path);
+    });
+  }
+
+  Future<String?> uploadImage(File imageFile) async {
+    try {
+      final ref = FirebaseStorage.instance
+          .ref('warehouse_images/$uid/${Path.basename(imageFile.path)}');
+      await ref.putFile(imageFile);
+      return await ref.getDownloadURL();
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   Future<void> saveWarehouseData() async {
+    String? imageUrl;
+
     double pricePerWeek = pricePerDay * 7;
     double pricePerMonth = pricePerDay *
         30; // Anda bisa mempertimbangkan menggunakan 30.44 sebagai rata-rata hari dalam sebulan.
     double pricePerYear = pricePerDay * 365;
+
+    if (_imageFile != null) {
+      imageUrl = await uploadImage(_imageFile!);
+      if (imageUrl == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image!')),
+        );
+        return;
+      }
+    }
 
     Map<String, dynamic> warehouseData = {
       'itemName': itemName,
@@ -89,6 +129,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
       'pricePerWeek': pricePerWeek,
       'pricePerMonth': pricePerMonth,
       'pricePerYear': pricePerYear,
+      'imageUrl': imageUrl,
     };
 
     try {
@@ -131,6 +172,20 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(children: [
+          GestureDetector(
+            onTap: _pickImage,
+            child: Container(
+              height: 150,
+              width: 150,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: _imageFile != null
+                  ? Image.file(_imageFile!)
+                  : Icon(Icons.add_a_photo, size: 50, color: Colors.grey[400]),
+            ),
+          ),
           // Existing fields
           TextFormField(
             controller: itemNameController,
