@@ -167,15 +167,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        _openEditProfilePage();
-                      },
-                      icon: FaIcon(
-                        FontAwesomeIcons.penToSquare, // Menggunakan ikon edit
-                        color: Color(0xFF2E9496), // Warna ikon sesuai keinginan
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -197,7 +188,9 @@ class _ProfilePageState extends State<ProfilePage> {
               Padding(
                 padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _openEditProfilePage();
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     minimumSize: const Size(0, 60),
@@ -215,11 +208,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         size: 20,
                       ),
                       Text(
-                        'Change Password',
+                        'Edit Profile',
                         style: pjsMedium16Black2,
                       ),
                       Padding(
-                        padding: EdgeInsets.only(left: 150),
+                        padding: EdgeInsets.only(left: 190),
                         child: Icon(
                           Icons.arrow_forward_ios,
                           color: Color(0xFF57636C),
@@ -245,8 +238,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      FaIcon(
-                        FontAwesomeIcons.penToSquare,
+                      Icon(
+                        Icons.lock_outline,
                         color: Color(0xFF57636C),
                         size: 20,
                       ),

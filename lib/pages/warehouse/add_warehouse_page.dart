@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:warebox_seller/pages/warehouse/warehouse_page.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';

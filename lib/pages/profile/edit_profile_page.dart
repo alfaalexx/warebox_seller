@@ -4,6 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:warebox_seller/utils/custom_themes.dart';
+
+import '../../utils/color_resources.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({Key? key}) : super(key: key);
@@ -177,7 +181,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Profile'),
+        title: Text(
+          'Edit Profile',
+          textAlign: TextAlign.start,
+          style: GoogleFonts.plusJakartaSans(
+              fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.black),
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -187,116 +200,263 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Profile Image:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text("Choose an option"),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _uploadProfileImage(ImageSource.camera);
+                    Center(
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {},
+                            child: profileImageUrl != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                        50), // Use BorderRadius
+                                    child: Image.network(
+                                      profileImageUrl!,
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                        50), // Use BorderRadius here as well
+                                    child: Container(
+                                      width: 100,
+                                      height: 100,
+                                      color: Colors
+                                          .grey, // Assuming you want a placeholder color
+                                      child: Icon(Icons.add_a_photo, size: 100),
+                                    ),
+                                  ),
+                          ),
+                          TextButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text("Choose an option"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            _uploadProfileImage(
+                                                ImageSource.camera);
+                                          },
+                                          child: Text("Camera"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            _uploadProfileImage(
+                                                ImageSource.gallery);
+                                          },
+                                          child: Text("Gallery"),
+                                        ),
+                                      ],
+                                    );
                                   },
-                                  child: Text("Camera"),
+                                );
+                              },
+                              child: Text(
+                                'Edit Photo Profile',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Color(0xFF2E9496),
+                                  fontSize: 14,
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _uploadProfileImage(ImageSource.gallery);
-                                  },
-                                  child: Text("Gallery"),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: profileImageUrl != null
-                          ? Image.network(
-                              profileImageUrl!,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            )
-                          : Icon(Icons.add_a_photo, size: 100),
+                              ))
+                        ],
+                      ),
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Name:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      'Username',
+                      style: pjsMedium16,
                     ),
+                    SizedBox(height: 5),
                     TextField(
                       controller: _nameController,
+                      style: pjsMedium16Black2,
+                      decoration: InputDecoration(
+                        errorStyle: pjsSemiBold16Red,
+                        filled: true,
+                        fillColor: Color(0xFFF2F2F2),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0x00000000), width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color(0xFF2E9496),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Email:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      'Address',
+                      style: pjsMedium16,
                     ),
-                    TextField(
-                      controller: _emailController,
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Gender:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    DropdownButton<String>(
-                      value: selectedGender,
-                      items: genderOptions.map((String gender) {
-                        return DropdownMenuItem<String>(
-                          value: gender,
-                          child: Text(gender),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedGender = newValue;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Phone Number:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    TextField(
-                      controller: _phoneNumberController,
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Address:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                    SizedBox(height: 5),
                     TextField(
                       controller: _addressController,
+                      style: pjsMedium16Black2,
+                      decoration: InputDecoration(
+                        errorStyle: pjsSemiBold16Red,
+                        filled: true,
+                        fillColor: Color(0xFFF2F2F2),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0x00000000), width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color(0xFF2E9496),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Gender',
+                                style: pjsMedium16,
+                              ),
+                              SizedBox(height: 5),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical:
+                                        4), // Padding for inside the dropdown
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFF2F2F2),
+                                  borderRadius: BorderRadius.circular(
+                                      12), // Border radius
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: selectedGender,
+                                    items: genderOptions.map((String gender) {
+                                      return DropdownMenuItem<String>(
+                                        value: gender,
+                                        child: Text(gender),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedGender = newValue;
+                                      });
+                                    },
+                                    style: pjsMedium16, // Your predefined style
+                                    // DropdownButton requires an additional decoration for the dropdown itself
+                                    dropdownColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Phone Number',
+                                style: pjsMedium16,
+                              ),
+                              SizedBox(height: 5),
+                              TextField(
+                                controller: _phoneNumberController,
+                                style: pjsMedium16Black2,
+                                decoration: InputDecoration(
+                                  errorStyle: pjsSemiBold16Red,
+                                  filled: true,
+                                  fillColor: Color(0xFFF2F2F2),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: Color(0x00000000), width: 2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.red, width: 2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color(0xFF2E9496),
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'About Me:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      'About Me',
+                      style: pjsMedium16,
                     ),
+                    SizedBox(height: 5),
                     TextField(
                       controller: _aboutMeController,
+                      style: pjsMedium16Black2,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        errorStyle: pjsSemiBold16Red,
+                        filled: true,
+                        fillColor: Color(0xFFF2F2F2),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0x00000000), width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Color(0xFF2E9496),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ),
                     SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: updateProfile,
-                      child: Text('Save'),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: updateProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorResources.wareboxTosca,
+                          minimumSize: const Size(0, 55),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text('Update', style: pjsExtraBold20),
+                      ),
                     ),
                   ],
                 ),
