@@ -40,6 +40,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   File? _imageFile;
   List<File> _detailImageFiles = [];
   final ImagePicker _picker = ImagePicker();
+  bool _isSaving = false;
 
   // Controller untuk setiap field
   final itemNameController = TextEditingController();
@@ -148,6 +149,10 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   }
 
   Future<void> saveWarehouseData() async {
+    setState(() {
+      _isSaving = true; // Set loading to true
+    });
+
     String? warehouseImageUrl;
 
     double pricePerWeek = pricePerDay * 7;
@@ -198,14 +203,15 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Warehouse added successfully!')),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MyWarehousePage()),
-      );
+      Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error adding warehouse: $e')),
       );
+    } finally {
+      setState(() {
+        _isSaving = false; // Set loading to false regardless of the outcome
+      });
     }
   }
 
@@ -274,150 +280,163 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Column(children: [
-          Text('Warehouse Image'),
-          GestureDetector(
-            onTap: _pickImage,
-            child: Container(
-              height: 150,
-              width: 150,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
+      body: Stack(children: [
+        SingleChildScrollView(
+          padding: EdgeInsets.all(16.0),
+          child: Column(children: [
+            Text('Warehouse Image'),
+            GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                height: 150,
+                width: 150,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: _imageFile != null
+                    ? Image.file(_imageFile!)
+                    : Icon(Icons.add_a_photo,
+                        size: 50, color: Colors.grey[400]),
               ),
-              child: _imageFile != null
-                  ? Image.file(_imageFile!)
-                  : Icon(Icons.add_a_photo, size: 50, color: Colors.grey[400]),
             ),
-          ),
-          Text('Detail Warehouse Image'),
-          _buildDetailImagePicker(),
-          TextFormField(
-            controller: itemNameController,
-            decoration: InputDecoration(labelText: 'Item Name'),
-            onChanged: (value) => setState(() => itemName = value),
-          ),
-          DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: 'Category'),
-            value: category.isNotEmpty ? category : null,
-            items: [
-              'Gudang Umum',
-              'Gudang Dingin',
-              'Gudang Khusus',
-              'Gudang Ecommerce'
-            ].map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                category = newValue!;
-              });
-            },
-          ),
-          TextFormField(
-            controller: itemDescriptionController,
-            decoration: InputDecoration(labelText: 'Item Description'),
-            onChanged: (value) => setState(() => itemDescription = value),
-          ),
+            Text('Detail Warehouse Image'),
+            _buildDetailImagePicker(),
+            TextFormField(
+              controller: itemNameController,
+              decoration: InputDecoration(labelText: 'Item Name'),
+              onChanged: (value) => setState(() => itemName = value),
+            ),
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(labelText: 'Category'),
+              value: category.isNotEmpty ? category : null,
+              items: [
+                'Gudang Umum',
+                'Gudang Dingin',
+                'Gudang Khusus',
+                'Gudang Ecommerce'
+              ].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  category = newValue!;
+                });
+              },
+            ),
+            TextFormField(
+              controller: itemDescriptionController,
+              decoration: InputDecoration(labelText: 'Item Description'),
+              onChanged: (value) => setState(() => itemDescription = value),
+            ),
 
-          // New fields
-          TextFormField(
-            controller: itemLargeController,
-            decoration: InputDecoration(labelText: 'Item Large'),
-            onChanged: (value) => setState(() => itemLarge = value),
-          ),
-          TextFormField(
-            controller: quantityController,
-            decoration: InputDecoration(labelText: 'Quantity'),
-            keyboardType: TextInputType.number,
-            onChanged: (value) =>
-                setState(() => quantity = int.tryParse(value) ?? 0),
-          ),
-          TextFormField(
-            controller: serialNumberController,
-            decoration: InputDecoration(labelText: 'Serial Number'),
-            onChanged: (value) => setState(() => serialNumber = value),
-          ),
-          TextFormField(
-            controller: locationController,
-            decoration: InputDecoration(labelText: 'Location'),
-            onChanged: (value) => setState(() => location = value),
-          ),
-          DropdownButtonFormField(
-            decoration: InputDecoration(labelText: 'Warehouse Status'),
-            value: warehouseStatus,
-            items: ['available', 'not available'].map((value) {
-              return DropdownMenuItem(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: (value) =>
-                setState(() => warehouseStatus = value.toString()),
-          ),
-          TextFormField(
-            controller: featuresController,
-            decoration: InputDecoration(labelText: 'Features'),
-            onChanged: (value) => setState(() => features = value),
-          ),
-          TextFormField(
-            controller: additionalNotesController,
-            decoration: InputDecoration(labelText: 'Additional Notes'),
-            onChanged: (value) => setState(() => additionalNotes = value),
-          ),
-          TextFormField(
-            controller: pricePerDayController,
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: 'Price per Day',
-              prefixText: 'Rp. ',
+            // New fields
+            TextFormField(
+              controller: itemLargeController,
+              decoration: InputDecoration(labelText: 'Item Large'),
+              onChanged: (value) => setState(() => itemLarge = value),
             ),
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            onChanged: (value) {
-              setState(() {
-                pricePerDay = double.tryParse(value.replaceAll(',', '')) ?? 0.0;
-              });
-            },
-          ),
-          SizedBox(height: 10),
-          TextField(
-            decoration: InputDecoration(
-              labelText: 'Price per Week',
+            TextFormField(
+              controller: quantityController,
+              decoration: InputDecoration(labelText: 'Quantity'),
+              keyboardType: TextInputType.number,
+              onChanged: (value) =>
+                  setState(() => quantity = int.tryParse(value) ?? 0),
             ),
-            enabled: false,
-            controller:
-                TextEditingController(text: formatRupiah(pricePerDay * 7)),
-          ),
-          SizedBox(height: 10),
-          TextField(
-            decoration: InputDecoration(
-              labelText: 'Price per Month',
+            TextFormField(
+              controller: serialNumberController,
+              decoration: InputDecoration(labelText: 'Serial Number'),
+              onChanged: (value) => setState(() => serialNumber = value),
             ),
-            enabled: false,
-            controller:
-                TextEditingController(text: formatRupiah(pricePerDay * 30)),
-          ),
-          SizedBox(height: 10),
-          TextField(
-            decoration: InputDecoration(
-              labelText: 'Price per Year',
+            TextFormField(
+              controller: locationController,
+              decoration: InputDecoration(labelText: 'Location'),
+              onChanged: (value) => setState(() => location = value),
             ),
-            enabled: false,
-            controller:
-                TextEditingController(text: formatRupiah(pricePerDay * 365)),
-          ),
+            DropdownButtonFormField(
+              decoration: InputDecoration(labelText: 'Warehouse Status'),
+              value: warehouseStatus,
+              items: ['available', 'not available'].map((value) {
+                return DropdownMenuItem(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (value) =>
+                  setState(() => warehouseStatus = value.toString()),
+            ),
+            TextFormField(
+              controller: featuresController,
+              decoration: InputDecoration(labelText: 'Features'),
+              onChanged: (value) => setState(() => features = value),
+            ),
+            TextFormField(
+              controller: additionalNotesController,
+              decoration: InputDecoration(labelText: 'Additional Notes'),
+              onChanged: (value) => setState(() => additionalNotes = value),
+            ),
+            TextFormField(
+              controller: pricePerDayController,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: 'Price per Day',
+                prefixText: 'Rp. ',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              onChanged: (value) {
+                setState(() {
+                  pricePerDay =
+                      double.tryParse(value.replaceAll(',', '')) ?? 0.0;
+                });
+              },
+            ),
+            SizedBox(height: 10),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Price per Week',
+              ),
+              enabled: false,
+              controller:
+                  TextEditingController(text: formatRupiah(pricePerDay * 7)),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Price per Month',
+              ),
+              enabled: false,
+              controller:
+                  TextEditingController(text: formatRupiah(pricePerDay * 30)),
+            ),
+            SizedBox(height: 10),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Price per Year',
+              ),
+              enabled: false,
+              controller:
+                  TextEditingController(text: formatRupiah(pricePerDay * 365)),
+            ),
 
-          ElevatedButton(
-            onPressed: saveWarehouseData,
-            child: Text('Add Warehouse'),
+            ElevatedButton(
+              onPressed: saveWarehouseData,
+              child: Text('Add Warehouse'),
+            ),
+          ]),
+        ),
+        if (_isSaving) // Sama dengan menggunakan Visibility widget
+          Center(
+            child: Container(
+              color: Colors.black45, // Semitransparent background
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
           ),
-        ]),
-      ),
+      ]),
     );
   }
 
