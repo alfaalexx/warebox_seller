@@ -38,6 +38,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   double pricePerMonth = 0.0;
   double pricePerYear = 0.0;
   File? _imageFile;
+  File? _detailImageFile;
   final ImagePicker _picker = ImagePicker();
 
   // Controller untuk setiap field
@@ -83,6 +84,14 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
     });
   }
 
+  Future<void> _pickDetailImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      _detailImageFile = File(pickedFile!.path);
+    });
+  }
+
   Future<String?> uploadImage(File imageFile) async {
     try {
       final ref = FirebaseStorage.instance
@@ -95,8 +104,21 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
     }
   }
 
+  Future<String?> uploadDetailImage(File imageFile) async {
+    try {
+      final ref = FirebaseStorage.instance
+          .ref('warehouse_detail_images/$uid/${Path.basename(imageFile.path)}');
+      await ref.putFile(imageFile);
+      return await ref.getDownloadURL();
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   Future<void> saveWarehouseData() async {
-    String? imageUrl;
+    String? warehouseImageUrl;
+    String? detailImageUrl;
 
     double pricePerWeek = pricePerDay * 7;
     double pricePerMonth = pricePerDay *
@@ -104,10 +126,20 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
     double pricePerYear = pricePerDay * 365;
 
     if (_imageFile != null) {
-      imageUrl = await uploadImage(_imageFile!);
-      if (imageUrl == null) {
+      warehouseImageUrl = await uploadImage(_imageFile!);
+      if (warehouseImageUrl == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error uploading image!')),
+        );
+        return;
+      }
+    }
+
+    if (_detailImageFile != null) {
+      detailImageUrl = await uploadDetailImage(_detailImageFile!);
+      if (detailImageUrl == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading detail image!')),
         );
         return;
       }
@@ -129,7 +161,8 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
       'pricePerWeek': pricePerWeek,
       'pricePerMonth': pricePerMonth,
       'pricePerYear': pricePerYear,
-      'imageUrl': imageUrl,
+      'warehouseImageUrl': warehouseImageUrl,
+      'detailImageUrl': detailImageUrl,
     };
 
     try {
@@ -172,6 +205,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(children: [
+          Text('Warehouse Image'),
           GestureDetector(
             onTap: _pickImage,
             child: Container(
@@ -184,6 +218,22 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
               child: _imageFile != null
                   ? Image.file(_imageFile!)
                   : Icon(Icons.add_a_photo, size: 50, color: Colors.grey[400]),
+            ),
+          ),
+          Text('Detail Warehouse Image'),
+          GestureDetector(
+            onTap: _pickDetailImage,
+            child: Container(
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: _detailImageFile != null
+                  ? Image.file(_detailImageFile!)
+                  : Icon(Icons.add_photo_alternate,
+                      size: 50, color: Colors.grey[400]),
             ),
           ),
           // Existing fields
