@@ -38,7 +38,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   double pricePerMonth = 0.0;
   double pricePerYear = 0.0;
   File? _imageFile;
-  File? _detailImageFile;
+  List<File> _detailImageFiles = [];
   final ImagePicker _picker = ImagePicker();
 
   // Controller untuk setiap field
@@ -75,21 +75,46 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(
-        source: ImageSource
-            .gallery); // Ganti dengan ImageSource.camera untuk menggunakan kamera
-
-    setState(() {
-      _imageFile = File(pickedFile!.path);
-    });
+    final ImageSource? source = await _getImageSource();
+    if (source != null) {
+      final pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+      }
+    }
   }
 
   Future<void> _pickDetailImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final ImageSource? source = await _getImageSource();
+    if (source != null) {
+      final XFile? pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+        setState(() {
+          _detailImageFiles.add(File(pickedFile.path));
+        });
+      }
+    }
+  }
 
-    setState(() {
-      _detailImageFile = File(pickedFile!.path);
-    });
+  Future<ImageSource?> _getImageSource() async {
+    return await showDialog<ImageSource>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Choose the image source'),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Camera'),
+            onPressed: () => Navigator.pop(context, ImageSource.camera),
+          ),
+          TextButton(
+            child: Text('Gallery'),
+            onPressed: () => Navigator.pop(context, ImageSource.gallery),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<String?> uploadImage(File imageFile) async {
@@ -104,21 +129,26 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
     }
   }
 
-  Future<String?> uploadDetailImage(File imageFile) async {
-    try {
-      final ref = FirebaseStorage.instance
-          .ref('warehouse_detail_images/$uid/${Path.basename(imageFile.path)}');
-      await ref.putFile(imageFile);
-      return await ref.getDownloadURL();
-    } catch (e) {
-      print(e);
-      return null;
+  Future<List<String?>> uploadDetailImages() async {
+    List<String?> uploadedUrls = [];
+
+    for (var imageFile in _detailImageFiles) {
+      try {
+        final ref = FirebaseStorage.instance.ref(
+            'warehouse_detail_images/$uid/${Path.basename(imageFile.path)}');
+        await ref.putFile(imageFile);
+        final downloadUrl = await ref.getDownloadURL();
+        uploadedUrls.add(downloadUrl);
+      } catch (e) {
+        print(e);
+      }
     }
+
+    return uploadedUrls;
   }
 
   Future<void> saveWarehouseData() async {
     String? warehouseImageUrl;
-    String? detailImageUrl;
 
     double pricePerWeek = pricePerDay * 7;
     double pricePerMonth = pricePerDay *
@@ -135,14 +165,12 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
       }
     }
 
-    if (_detailImageFile != null) {
-      detailImageUrl = await uploadDetailImage(_detailImageFile!);
-      if (detailImageUrl == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error uploading detail image!')),
-        );
-        return;
-      }
+    List<String?> detailImageUrls = await uploadDetailImages();
+    if (detailImageUrls.contains(null)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error uploading detail images!')),
+      );
+      return;
     }
 
     Map<String, dynamic> warehouseData = {
@@ -162,7 +190,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
       'pricePerMonth': pricePerMonth,
       'pricePerYear': pricePerYear,
       'warehouseImageUrl': warehouseImageUrl,
-      'detailImageUrl': detailImageUrl,
+      'detailImageUrls': detailImageUrls.whereType<String>().toList(),
     };
 
     try {
@@ -179,6 +207,50 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
         SnackBar(content: Text('Error adding warehouse: $e')),
       );
     }
+  }
+
+  Widget _buildDetailImagePicker() {
+    return GridView.builder(
+      shrinkWrap: true,
+      itemCount: _detailImageFiles.length + 1, // Add one for the add button
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 4.0,
+        mainAxisSpacing: 4.0,
+      ),
+      itemBuilder: (BuildContext context, int index) {
+        if (index < _detailImageFiles.length) {
+          return Image.file(
+            _detailImageFiles[index],
+            fit: BoxFit.cover,
+          );
+        } else {
+          return GestureDetector(
+            onTap: () {
+              if (_detailImageFiles.length < 5) {
+                _pickDetailImage();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('You can only add up to 5 images.'),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.add,
+                color: Colors.white70,
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override
@@ -221,22 +293,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
             ),
           ),
           Text('Detail Warehouse Image'),
-          GestureDetector(
-            onTap: _pickDetailImage,
-            child: Container(
-              height: 150,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _detailImageFile != null
-                  ? Image.file(_detailImageFile!)
-                  : Icon(Icons.add_photo_alternate,
-                      size: 50, color: Colors.grey[400]),
-            ),
-          ),
-          // Existing fields
+          _buildDetailImagePicker(),
           TextFormField(
             controller: itemNameController,
             decoration: InputDecoration(labelText: 'Item Name'),
