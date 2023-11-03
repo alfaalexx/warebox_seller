@@ -40,6 +40,8 @@ class MyWarehousePage extends StatefulWidget {
 
 class _MyWarehousePageState extends State<MyWarehousePage> {
   User? user;
+  TextEditingController searchController = TextEditingController();
+  String searchKey = '';
 
   @override
   void initState() {
@@ -63,9 +65,11 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
     final uid = user!.uid;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
+        elevation: 0,
         title: Text(
           'My Warehouse',
           style: GoogleFonts.plusJakartaSans(
@@ -125,49 +129,31 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('warehouses')
-              .where('uid', isEqualTo: uid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(child: Text('No warehouses found.'));
-            } else {
-              // Improved null check with list spread operator
-              return Column(
-                children: [
-                  ...snapshot.data!.docs.map((warehouse) {
-                    final Warehouse currentWarehouse =
-                        Warehouse.fromFirestore(warehouse);
-                    return Card(
-                      child: ListTile(
-                        title: Text(currentWarehouse.itemName),
-                        subtitle: Text(currentWarehouse.category),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailWarehousePage(
-                                  warehouse: currentWarehouse),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  }).toList(),
-                ],
-              );
-            }
-          },
-        ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                labelText: 'Search Warehouse',
+                suffixIcon: Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchKey = value.trim();
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: buildWarehouseList(uid, searchKey),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: Color(0xFF2E9496),
         onPressed: () {
           Navigator.push(
             context,
@@ -177,6 +163,72 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
         tooltip: 'Add Warehouse',
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  Widget buildWarehouseList(String uid, String searchKey) {
+    final query = searchKey.isNotEmpty
+        ? FirebaseFirestore.instance
+            .collection('warehouses')
+            .where('uid', isEqualTo: uid)
+            .where('itemName_lowercase',
+                isGreaterThanOrEqualTo: searchKey.toLowerCase())
+            .where('itemName_lowercase',
+                isLessThanOrEqualTo: searchKey.toLowerCase() + '\uf8ff')
+            .snapshots()
+        : FirebaseFirestore.instance
+            .collection('warehouses')
+            .where('uid', isEqualTo: uid)
+            .snapshots();
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: query,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No warehouses found.'));
+        } else {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView(
+              children: snapshot.data!.docs.map((warehouse) {
+                final Warehouse currentWarehouse =
+                    Warehouse.fromFirestore(warehouse);
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 5.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Color(0xFFE5E5E5),
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    child: ListTile(
+                      title: Text(currentWarehouse.itemName),
+                      subtitle: Text(currentWarehouse.category),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailWarehousePage(
+                                warehouse: currentWarehouse),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          );
+        }
+      },
     );
   }
 }

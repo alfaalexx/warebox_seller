@@ -75,6 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         automaticallyImplyLeading: true,
+        elevation: 0,
         leading: Align(
           alignment: const AlignmentDirectional(0.00, 0.00),
           child: IconButton(

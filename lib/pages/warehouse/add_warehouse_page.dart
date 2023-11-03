@@ -179,6 +179,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
 
     Map<String, dynamic> warehouseData = {
       'itemName': itemName,
+      'itemName_lowercase': itemName.toLowerCase(),
       'category': category,
       'itemDescription': itemDescription,
       'uid': uid,
