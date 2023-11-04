@@ -26,7 +26,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   String category = '';
   String itemDescription = '';
   String uid = '';
-  String itemLarge = '';
+  int itemLarge = 0;
   int quantity = 0;
   String serialNumber = '';
   String location = '';
@@ -430,16 +430,24 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                   return null;
                 },
               ),
-
-              // New fields
               TextFormField(
                 controller: itemLargeController,
                 decoration: InputDecoration(labelText: 'Item Large'),
-                onChanged: (value) => setState(() => itemLarge = value),
+                keyboardType: TextInputType.number, // Show number keyboard type
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly // Allow only numbers
+                ],
+                onChanged: (value) => setState(() {
+                  // Parse the input to an integer before saving it in the state.
+                  itemLarge = int.tryParse(value) ??
+                      0; // Use tryParse to avoid exceptions
+                }),
                 validator: (value) {
-                  // Tambahkan validator
                   if (value == null || value.isEmpty) {
                     return 'Item Large is required';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Please enter a valid integer'; // Ensure the input is an integer
                   }
                   return null;
                 },
@@ -453,7 +461,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                 validator: (value) {
                   // Tambahkan validator
                   if (value == null || value.isEmpty) {
-                    return 'Item Large is required';
+                    return 'Serial Number is required';
                   }
                   return null;
                 },
@@ -465,7 +473,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                 validator: (value) {
                   // Tambahkan validator
                   if (value == null || value.isEmpty) {
-                    return 'Item Large is required';
+                    return 'Location is required';
                   }
                   return null;
                 },
@@ -484,7 +492,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                 validator: (value) {
                   // Tambahkan validator
                   if (value == null || value.isEmpty) {
-                    return 'Item Large is required';
+                    return 'Warehouse Status is required';
                   }
                   return null;
                 },
@@ -496,7 +504,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                 validator: (value) {
                   // Tambahkan validator
                   if (value == null || value.isEmpty) {
-                    return 'Item Large is required';
+                    return 'Features is required';
                   }
                   return null;
                 },
@@ -508,7 +516,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                 validator: (value) {
                   // Tambahkan validator
                   if (value == null || value.isEmpty) {
-                    return 'Item Large is required';
+                    return 'Additional Notes is required';
                   }
                   return null;
                 },
@@ -530,7 +538,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                 validator: (value) {
                   // Tambahkan validator
                   if (value == null || value.isEmpty) {
-                    return 'Item Large is required';
+                    return 'Price per Day is required';
                   }
                   return null;
                 },
@@ -543,13 +551,6 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                 enabled: false,
                 controller:
                     TextEditingController(text: formatRupiah(pricePerDay * 7)),
-                validator: (value) {
-                  // Tambahkan validator
-                  if (value == null || value.isEmpty) {
-                    return 'Item Large is required';
-                  }
-                  return null;
-                },
               ),
               SizedBox(height: 10),
               TextField(
@@ -569,7 +570,6 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                 controller: TextEditingController(
                     text: formatRupiah(pricePerDay * 365)),
               ),
-
               ElevatedButton(
                 onPressed: () {
                   // Cek apakah form valid.
