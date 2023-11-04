@@ -19,6 +19,7 @@ class AddWarehousePage extends StatefulWidget {
 class _AddWarehousePageState extends State<AddWarehousePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final _formKey = GlobalKey<FormState>();
 
   // Deklarasikan semua variabel untuk menyimpan data gudang
   String itemName = '';
@@ -63,6 +64,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   void initState() {
     super.initState();
     _getUserUID();
+    quantityController.text = quantity.toString();
   }
 
   Future<void> _getUserUID() async {
@@ -148,6 +150,21 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   }
 
   Future<void> saveWarehouseData() async {
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all the required fields')),
+      );
+      return;
+    }
+
+    if (_imageFile == null) {
+      // Pastikan _imageFile adalah variabel untuk file gambar yang dipilih.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You must upload a warehouse image!')),
+      );
+      return;
+    }
+
     setState(() {
       _isSaving = true; // Set loading to true
     });
@@ -259,6 +276,62 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
     );
   }
 
+  Widget _buildQuantityCounter(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.0),
+      decoration: BoxDecoration(
+        color: Colors.white, // Warna latar belakang container
+        borderRadius: BorderRadius.circular(30.0), // Radius border melengkung
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1), // Warna bayangan
+            spreadRadius: 0,
+            blurRadius: 10, // Seberapa kabur bayangannya
+            offset: Offset(0, 3), // Posisi bayangan
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min, // Agar ukuran Row menyesuaikan isi
+        children: [
+          _buildIconButton(Icons.remove, () {
+            if (quantity > 0) {
+              setState(() {
+                quantity--;
+                quantityController.text = quantity.toString();
+              });
+            }
+          }),
+          SizedBox(width: 20), // Jarak antara tombol dan teks
+          Text(
+            quantity.toString(),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(width: 20), // Jarak antara teks dan tombol
+          _buildIconButton(Icons.add, () {
+            setState(() {
+              quantity++;
+              quantityController.text = quantity.toString();
+            });
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
+    return IconButton(
+      icon: Icon(icon),
+      onPressed: onPressed,
+      color: Colors.black, // Warna ikon
+      splashRadius: 20, // Efek cipratan air ketika diklik
+      iconSize: 24, // Ukuran ikon
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -283,149 +356,246 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
       body: Stack(children: [
         SingleChildScrollView(
           padding: EdgeInsets.all(16.0),
-          child: Column(children: [
-            Text('Warehouse Image'),
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                height: 150,
-                width: 150,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode
+                .onUserInteraction, // Validasi otomatis ketika pengguna berinteraksi
+            child: Column(children: [
+              Text('Warehouse Image'),
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 150,
+                  width: 150,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: _imageFile != null
+                      ? Image.file(_imageFile!)
+                      : Icon(Icons.add_a_photo,
+                          size: 50, color: Colors.grey[400]),
                 ),
-                child: _imageFile != null
-                    ? Image.file(_imageFile!)
-                    : Icon(Icons.add_a_photo,
-                        size: 50, color: Colors.grey[400]),
               ),
-            ),
-            Text('Detail Warehouse Image'),
-            _buildDetailImagePicker(),
-            TextFormField(
-              controller: itemNameController,
-              decoration: InputDecoration(labelText: 'Item Name'),
-              onChanged: (value) => setState(() => itemName = value),
-            ),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(labelText: 'Category'),
-              value: category.isNotEmpty ? category : null,
-              items: [
-                'Gudang Umum',
-                'Gudang Dingin',
-                'Gudang Khusus',
-                'Gudang Ecommerce'
-              ].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  category = newValue!;
-                });
-              },
-            ),
-            TextFormField(
-              controller: itemDescriptionController,
-              decoration: InputDecoration(labelText: 'Item Description'),
-              onChanged: (value) => setState(() => itemDescription = value),
-            ),
+              Text('Detail Warehouse Image'),
+              _buildDetailImagePicker(),
+              TextFormField(
+                controller: itemNameController,
+                decoration: InputDecoration(labelText: 'Item Name'),
+                onChanged: (value) => setState(() => itemName = value),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Name is required';
+                  }
+                  return null;
+                },
+              ),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(labelText: 'Category'),
+                value: category.isNotEmpty ? category : null,
+                items: [
+                  'Gudang Umum',
+                  'Gudang Dingin',
+                  'Gudang Khusus',
+                  'Gudang Ecommerce'
+                ].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    category = newValue!;
+                  });
+                },
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Category is required';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: itemDescriptionController,
+                decoration: InputDecoration(labelText: 'Item Description'),
+                onChanged: (value) => setState(() => itemDescription = value),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Description is required';
+                  }
+                  return null;
+                },
+              ),
 
-            // New fields
-            TextFormField(
-              controller: itemLargeController,
-              decoration: InputDecoration(labelText: 'Item Large'),
-              onChanged: (value) => setState(() => itemLarge = value),
-            ),
-            TextFormField(
-              controller: quantityController,
-              decoration: InputDecoration(labelText: 'Quantity'),
-              keyboardType: TextInputType.number,
-              onChanged: (value) =>
-                  setState(() => quantity = int.tryParse(value) ?? 0),
-            ),
-            TextFormField(
-              controller: serialNumberController,
-              decoration: InputDecoration(labelText: 'Serial Number'),
-              onChanged: (value) => setState(() => serialNumber = value),
-            ),
-            TextFormField(
-              controller: locationController,
-              decoration: InputDecoration(labelText: 'Location'),
-              onChanged: (value) => setState(() => location = value),
-            ),
-            DropdownButtonFormField(
-              decoration: InputDecoration(labelText: 'Warehouse Status'),
-              value: warehouseStatus,
-              items: ['available', 'not available'].map((value) {
-                return DropdownMenuItem(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (value) =>
-                  setState(() => warehouseStatus = value.toString()),
-            ),
-            TextFormField(
-              controller: featuresController,
-              decoration: InputDecoration(labelText: 'Features'),
-              onChanged: (value) => setState(() => features = value),
-            ),
-            TextFormField(
-              controller: additionalNotesController,
-              decoration: InputDecoration(labelText: 'Additional Notes'),
-              onChanged: (value) => setState(() => additionalNotes = value),
-            ),
-            TextFormField(
-              controller: pricePerDayController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: 'Price per Day',
-                prefixText: 'Rp. ',
+              // New fields
+              TextFormField(
+                controller: itemLargeController,
+                decoration: InputDecoration(labelText: 'Item Large'),
+                onChanged: (value) => setState(() => itemLarge = value),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Large is required';
+                  }
+                  return null;
+                },
               ),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              onChanged: (value) {
-                setState(() {
-                  pricePerDay =
-                      double.tryParse(value.replaceAll(',', '')) ?? 0.0;
-                });
-              },
-            ),
-            SizedBox(height: 10),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Price per Week',
+              Text('Quantity'),
+              _buildQuantityCounter(context),
+              TextFormField(
+                controller: serialNumberController,
+                decoration: InputDecoration(labelText: 'Serial Number'),
+                onChanged: (value) => setState(() => serialNumber = value),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Large is required';
+                  }
+                  return null;
+                },
               ),
-              enabled: false,
-              controller:
-                  TextEditingController(text: formatRupiah(pricePerDay * 7)),
-            ),
-            SizedBox(height: 10),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Price per Month',
+              TextFormField(
+                controller: locationController,
+                decoration: InputDecoration(labelText: 'Location'),
+                onChanged: (value) => setState(() => location = value),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Large is required';
+                  }
+                  return null;
+                },
               ),
-              enabled: false,
-              controller:
-                  TextEditingController(text: formatRupiah(pricePerDay * 30)),
-            ),
-            SizedBox(height: 10),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Price per Year',
+              DropdownButtonFormField(
+                decoration: InputDecoration(labelText: 'Warehouse Status'),
+                value: warehouseStatus,
+                items: ['available', 'not available'].map((value) {
+                  return DropdownMenuItem(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (value) =>
+                    setState(() => warehouseStatus = value.toString()),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Large is required';
+                  }
+                  return null;
+                },
               ),
-              enabled: false,
-              controller:
-                  TextEditingController(text: formatRupiah(pricePerDay * 365)),
-            ),
+              TextFormField(
+                controller: featuresController,
+                decoration: InputDecoration(labelText: 'Features'),
+                onChanged: (value) => setState(() => features = value),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Large is required';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: additionalNotesController,
+                decoration: InputDecoration(labelText: 'Additional Notes'),
+                onChanged: (value) => setState(() => additionalNotes = value),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Large is required';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: pricePerDayController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: 'Price per Day',
+                  prefixText: 'Rp. ',
+                ),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: (value) {
+                  setState(() {
+                    pricePerDay =
+                        double.tryParse(value.replaceAll(',', '')) ?? 0.0;
+                  });
+                },
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Large is required';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Price per Week',
+                ),
+                enabled: false,
+                controller:
+                    TextEditingController(text: formatRupiah(pricePerDay * 7)),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Item Large is required';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Price per Month',
+                ),
+                enabled: false,
+                controller:
+                    TextEditingController(text: formatRupiah(pricePerDay * 30)),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Price per Year',
+                ),
+                enabled: false,
+                controller: TextEditingController(
+                    text: formatRupiah(pricePerDay * 365)),
+              ),
 
-            ElevatedButton(
-              onPressed: saveWarehouseData,
-              child: Text('Add Warehouse'),
-            ),
-          ]),
+              ElevatedButton(
+                onPressed: () {
+                  // Cek apakah form valid.
+                  bool isFormValid = _formKey.currentState!.validate();
+                  // Cek apakah gambar sudah dipilih.
+                  bool isImageSelected = _imageFile !=
+                      null; // Pastikan variabel _imageFile merepresentasikan file gambar yang dipilih.
+
+                  if (isFormValid && isImageSelected) {
+                    saveWarehouseData(); // Simpan data jika form valid dan gambar telah dipilih.
+                  } else {
+                    // Jika gambar belum dipilih, tampilkan SnackBar.
+                    if (!isImageSelected) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content:
+                                Text('You must upload a warehouse image!')),
+                      );
+                    }
+                    // Anda bisa juga menambahkan kondisi lain jika form tidak valid.
+                  }
+                },
+                child: Text('Add Warehouse'),
+              ),
+            ]),
+          ),
         ),
         if (_isSaving) // Sama dengan menggunakan Visibility widget
           Center(
