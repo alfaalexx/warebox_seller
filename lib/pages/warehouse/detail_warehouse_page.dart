@@ -3,6 +3,7 @@ import 'package:warebox_seller/pages/warehouse/warehouse_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:warebox_seller/pages/warehouse/edit_warehouse_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class DetailWarehousePage extends StatefulWidget {
   final String warehouseId;
@@ -23,6 +24,48 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
   void initState() {
     super.initState();
     _loadWarehouseData();
+  }
+
+  void _deleteWarehouse(BuildContext context) async {
+    // Show confirmation dialog before deleting
+    bool confirmDelete = await _showDeleteConfirmationDialog(context);
+    if (confirmDelete) {
+      // Proceed with deletion
+      await FirebaseFirestore.instance
+          .collection('warehouses')
+          .doc(widget.warehouseId)
+          .delete();
+
+      // After deletion, pop out of the details page
+      Navigator.of(context).pop(true); // true indicates something was deleted
+    }
+  }
+
+  Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Confirm Delete'),
+              content: Text('Are you sure you want to delete this warehouse?'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Do not delete
+                  },
+                ),
+                TextButton(
+                  child: Text('Delete', style: TextStyle(color: Colors.red)),
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Proceed with deletion
+                  },
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Return false if dialog is dismissed
   }
 
   void _loadWarehouseData() async {
@@ -88,11 +131,13 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
             // Icon Button untuk Hapus Warehouse
             IconButton(
               icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {},
+              onPressed: () {
+                _deleteWarehouse(context);
+              },
             ),
           ],
         ),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,6 +149,45 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
               SizedBox(height: 8),
               Text('Category: ${warehouse!.category}',
                   style: TextStyle(fontSize: 20)),
+              SizedBox(height: 16),
+              warehouse!.warehouseImageUrl != null
+                  ? Image.network(warehouse!.warehouseImageUrl!)
+                  : Container(
+                      height: 200,
+                      child: Center(child: Text('No image available')),
+                    ),
+              SizedBox(height: 16),
+              warehouse!.detailImageUrls != null &&
+                      warehouse!.detailImageUrls!.isNotEmpty
+                  ? CarouselSlider(
+                      options: CarouselOptions(
+                        aspectRatio: 16 / 9,
+                        enlargeCenterPage: true,
+                        scrollDirection: Axis.horizontal,
+                        autoPlay: true,
+                      ),
+                      items: warehouse!.detailImageUrls!.map((imageUrl) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Container(
+                              width: MediaQuery.of(context).size.width,
+                              margin: EdgeInsets.symmetric(horizontal: 5.0),
+                              decoration: BoxDecoration(
+                                color: Colors.amber,
+                              ),
+                              child: Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    )
+                  : Container(
+                      height: 200,
+                      child: Center(child: Text('No images available')),
+                    ),
               // Tambahkan elemen UI lain sesuai kebutuhan
             ],
           ),
