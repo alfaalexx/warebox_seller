@@ -243,9 +243,33 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
       ),
       itemBuilder: (BuildContext context, int index) {
         if (index < _detailImageFiles.length) {
-          return Image.file(
-            _detailImageFiles[index],
-            fit: BoxFit.cover,
+          return Stack(
+            children: [
+              Image.file(
+                _detailImageFiles[index],
+                fit: BoxFit.cover,
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[600],
+                    shape: BoxShape.rectangle,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.close, size: 16, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        _detailImageFiles.removeAt(index);
+                      });
+                    },
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                  ),
+                ),
+              ),
+            ],
           );
         } else {
           return GestureDetector(
@@ -372,7 +396,36 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: _imageFile != null
-                      ? Image.file(_imageFile!)
+                      ? Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            Image.file(_imageFile!,
+                                fit: BoxFit.cover, width: double.infinity),
+                            // Overlay 'X' button to allow the user to remove the image
+                            Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[
+                                    600], // Background color for the close icon
+                                shape: BoxShape.rectangle,
+                              ),
+                              alignment: Alignment.center,
+                              child: IconButton(
+                                icon: Icon(Icons.close, color: Colors.white),
+                                padding: EdgeInsets.zero,
+                                onPressed: () {
+                                  setState(() {
+                                    // This will remove the image from the UI
+                                    _imageFile = null;
+                                  });
+                                  // Optionally, you can also add logic here to remove the image from where it is stored.
+                                  // If you're handling images that are saved on the device or uploaded, make sure to delete them from there as well.
+                                },
+                              ),
+                            ),
+                          ],
+                        )
                       : Icon(Icons.add_a_photo,
                           size: 50, color: Colors.grey[400]),
                 ),

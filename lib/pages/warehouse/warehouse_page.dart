@@ -11,22 +11,27 @@ class Warehouse {
   final String id;
   final String itemName;
   final String category;
+  final String uid;
 
-  Warehouse({required this.id, required this.itemName, required this.category});
+  Warehouse({
+    required this.id,
+    required this.itemName,
+    required this.category,
+    required this.uid,
+  });
 
-  factory Warehouse.fromFirestore(DocumentSnapshot doc) {
-    // Ambil data, dan jika doc.data() memberikan null (dokumen tidak ditemukan),
-    // gunakan map kosong sebagai gantinya.
+  factory Warehouse.fromSnapshot(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>? ?? {};
 
-    // Berikan nilai default untuk 'itemName' dan 'category' jika null.
     String itemName = data['itemName'] as String? ?? 'No Name';
     String category = data['category'] as String? ?? 'No Category';
+    String uid = data['uid'] as String? ?? 'No UID'; // Corrected the key here
 
     return Warehouse(
       id: doc.id,
       itemName: itemName,
       category: category,
+      uid: uid,
     );
   }
 }
@@ -196,7 +201,7 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
             child: ListView(
               children: snapshot.data!.docs.map((warehouse) {
                 final Warehouse currentWarehouse =
-                    Warehouse.fromFirestore(warehouse);
+                    Warehouse.fromSnapshot(warehouse);
                 return Container(
                   margin: EdgeInsets.symmetric(vertical: 5.0),
                   decoration: BoxDecoration(
@@ -217,7 +222,7 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => DetailWarehousePage(
-                                warehouse: currentWarehouse),
+                                warehouseId: currentWarehouse.id),
                           ),
                         );
                       },
