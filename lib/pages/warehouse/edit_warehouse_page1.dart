@@ -233,7 +233,7 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
         'itemDescription': _itemDescriptionController.text,
         'uid': widget.warehouse.uid,
         'itemLarge': int.tryParse(_itemLargeController.text),
-        'quantity': int.tryParse(_quantityController.text), //
+        'quantity': int.tryParse(_quantityController.text),
         'serialNumber': _serialNumberController.text,
         'location': _locationController.text,
         'warehouseStatus': _warehouseStatusController.text,
