@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:warebox_seller/pages/warehouse/edit_warehouse_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class DetailWarehousePage extends StatefulWidget {
   final String warehouseId;
@@ -18,6 +19,7 @@ class DetailWarehousePage extends StatefulWidget {
 }
 
 class _DetailWarehousePageState extends State<DetailWarehousePage> {
+  Stream<DocumentSnapshot>? warehouseStream;
   Warehouse? warehouse;
 
   @override
@@ -26,10 +28,32 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
     _loadWarehouseData();
   }
 
+  Future<void> deleteWarehouseImages(List<String> imageUrls) async {
+    for (String imageUrl in imageUrls) {
+      // Mengubah setiap URL gambar menjadi referensi storage
+      Reference storageReference =
+          FirebaseStorage.instance.refFromURL(imageUrl);
+
+      // Menghapus gambar dari storage
+      await storageReference.delete().catchError((e) => print(e));
+    }
+  }
+
   void _deleteWarehouse(BuildContext context) async {
     // Show confirmation dialog before deleting
     bool confirmDelete = await _showDeleteConfirmationDialog(context);
     if (confirmDelete) {
+      // Ambil gambar utama dan detail gambar untuk dihapus
+      List<String> imageUrls = [];
+      if (warehouse!.warehouseImageUrl != null) {
+        imageUrls.add(warehouse!.warehouseImageUrl!);
+      }
+      if (warehouse!.detailImageUrls != null) {
+        imageUrls.addAll(warehouse!.detailImageUrls!);
+      }
+
+      // Hapus gambar dari Firebase Storage
+      await deleteWarehouseImages(imageUrls);
       // Proceed with deletion
       await FirebaseFirestore.instance
           .collection('warehouses')
@@ -69,16 +93,37 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
   }
 
   void _loadWarehouseData() async {
-    DocumentSnapshot warehouseSnapshot = await FirebaseFirestore.instance
-        .collection('warehouses')
-        .doc(widget.warehouseId)
-        .get();
+    try {
+      DocumentSnapshot warehouseSnapshot = await FirebaseFirestore.instance
+          .collection('warehouses')
+          .doc(widget.warehouseId)
+          .get();
 
-    // Only update the state if the widget is still mounted
-    if (mounted) {
-      setState(() {
-        warehouse = Warehouse.fromSnapshot(warehouseSnapshot);
-      });
+      if (warehouseSnapshot.exists) {
+        // Only update the state if the widget is still mounted
+        if (mounted) {
+          setState(() {
+            warehouse = Warehouse.fromSnapshot(warehouseSnapshot);
+          });
+        }
+      } else {
+        // Handle the case where the warehouse document does not exist.
+        if (mounted) {
+          setState(() {
+            // You could update the state to show some message to the user
+            // For example, set `warehouse` to `null` or show a snackbar...
+            warehouse = null;
+          });
+        }
+      }
+    } catch (e) {
+      // Handle the error, e.g., by showing an error message to the user
+      if (mounted) {
+        setState(() {
+          // Set `warehouse` to `null` or log the error
+          warehouse = null;
+        });
+      }
     }
   }
 
@@ -151,7 +196,22 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
                   style: TextStyle(fontSize: 20)),
               SizedBox(height: 16),
               warehouse!.warehouseImageUrl != null
-                  ? Image.network(warehouse!.warehouseImageUrl!)
+                  ? Image.network(
+                      warehouse!.warehouseImageUrl!,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                    )
                   : Container(
                       height: 200,
                       child: Center(child: Text('No image available')),
