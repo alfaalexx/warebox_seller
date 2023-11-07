@@ -1,29 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextFormFieldPrice extends StatelessWidget {
   final TextEditingController controller;
-  final String hintText;
-  final ValueChanged<String> onChanged;
-  final FormFieldValidator<String>? validator;
-  final Widget? prefixIcon;
-  final Widget? suffixIcon;
+  final String labelText;
+  final TextStyle labelStyle;
+  final String prefixText;
+  final TextInputType keyboardType;
+  final List<TextInputFormatter> inputFormatters;
+  final Function(String) onChanged;
+  final String? Function(String?) validator;
 
-  const CustomTextField({
+  const CustomTextFormFieldPrice({
     Key? key,
     required this.controller,
-    required this.hintText,
+    this.labelText = '',
+    this.labelStyle = const TextStyle(),
+    this.prefixText = '',
+    this.keyboardType = TextInputType.text,
+    this.inputFormatters = const [],
     required this.onChanged,
-    this.prefixIcon,
-    this.suffixIcon,
-    this.validator, // validator bisa jadi opsional, tergantung penggunaannya.
+    required this.validator,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
-        hintText: hintText,
+        labelText: labelText,
+        labelStyle: labelStyle,
+        prefixText: prefixText,
         errorStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
@@ -44,11 +53,9 @@ class CustomTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF2E9496)),
+          borderSide: BorderSide(color: Color(0xFF2E9496), width: 2),
           borderRadius: BorderRadius.circular(12),
         ),
-        prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
       ),
       onChanged: onChanged,
       validator: validator,

@@ -54,6 +54,12 @@ final TextStyle pjsMedium16 = GoogleFonts.plusJakartaSans(
   fontWeight: FontWeight.w500,
 );
 
+final TextStyle pjsMedium16Tosca = GoogleFonts.plusJakartaSans(
+  color: Color(0xFF2E9496),
+  fontSize: 16,
+  fontWeight: FontWeight.w500,
+);
+
 final TextStyle pjsMedium12 = GoogleFonts.plusJakartaSans(
   color: Colors.black,
   fontSize: 12,

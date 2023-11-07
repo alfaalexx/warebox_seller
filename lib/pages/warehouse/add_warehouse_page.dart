@@ -14,6 +14,7 @@ import '../../widget/custom_textfield.dart';
 import '../../widget/custom_dropdown.dart';
 import '../../widget/custom_textfieldmax.dart';
 import '../../widget/custom_numberfield.dart';
+import '../../widget/custom_textfieldPrice.dart';
 
 class AddWarehousePage extends StatefulWidget {
   const AddWarehousePage({Key? key}) : super(key: key);
@@ -292,12 +293,12 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
             },
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Color(0xFFF2F2F2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 Icons.add,
-                color: Colors.white70,
+                color: Colors.grey,
               ),
             ),
           );
@@ -370,10 +371,29 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
         backgroundColor: Colors.transparent,
         iconTheme: IconThemeData(color: Colors.black),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () {},
-          ),
+          TextButton(
+            onPressed: () {
+              // Cek apakah form valid.
+              bool isFormValid = _formKey.currentState!.validate();
+              // Cek apakah gambar sudah dipilih.
+              bool isImageSelected = _imageFile !=
+                  null; // Pastikan variabel _imageFile merepresentasikan file gambar yang dipilih.
+
+              if (isFormValid && isImageSelected) {
+                saveWarehouseData(); // Simpan data jika form valid dan gambar telah dipilih.
+              } else {
+                // Jika gambar belum dipilih, tampilkan SnackBar.
+                if (!isImageSelected) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text('You must upload a warehouse image!')),
+                  );
+                }
+                // Anda bisa juga menambahkan kondisi lain jika form tidak valid.
+              }
+            },
+            child: Text('Save', style: pjsMedium16Tosca),
+          )
         ],
       ),
       body: Stack(children: [
@@ -538,6 +558,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                       ),
                       SizedBox(height: 5),
                       CustomDropdown(
+                        hintText: 'Choose Status',
                         itemBuilder: (item) => item,
                         items: ['available', 'not available'],
                         onChanged: (value) =>
@@ -554,56 +575,17 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                   )),
                 ],
               ),
-              Text('Warehouse Image'),
-              GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  height: 150,
-                  width: 150,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: _imageFile != null
-                      ? Stack(
-                          alignment: Alignment.topRight,
-                          children: [
-                            Image.file(_imageFile!,
-                                fit: BoxFit.cover, width: double.infinity),
-                            // Overlay 'X' button to allow the user to remove the image
-                            Container(
-                              width: 30,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[
-                                    600], // Background color for the close icon
-                                shape: BoxShape.rectangle,
-                              ),
-                              alignment: Alignment.center,
-                              child: IconButton(
-                                icon: Icon(Icons.close, color: Colors.white),
-                                padding: EdgeInsets.zero,
-                                onPressed: () {
-                                  setState(() {
-                                    // This will remove the image from the UI
-                                    _imageFile = null;
-                                  });
-                                  // Optionally, you can also add logic here to remove the image from where it is stored.
-                                  // If you're handling images that are saved on the device or uploaded, make sure to delete them from there as well.
-                                },
-                              ),
-                            ),
-                          ],
-                        )
-                      : Icon(Icons.add_a_photo,
-                          size: 50, color: Colors.grey[400]),
-                ),
+              SizedBox(height: 10),
+              Text(
+                'Location',
+                style: pjsMedium16,
               ),
-              Text('Detail Warehouse Image'),
-              _buildDetailImagePicker(),
-              TextFormField(
+              SizedBox(height: 5),
+              CustomTextField(
                 controller: locationController,
-                decoration: InputDecoration(labelText: 'Location'),
+                hintText: 'Location',
+                prefixIcon: ImageIcon(
+                    AssetImage("assets/images/icon _map marker_.png")),
                 onChanged: (value) => setState(() => location = value),
                 validator: (value) {
                   // Tambahkan validator
@@ -613,23 +595,15 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                   return null;
                 },
               ),
-              CustomDropdown(
-                hintText: 'Choose Warehouse Status',
-                itemBuilder: (item) => item,
-                items: ['available', 'not available'],
-                onChanged: (value) =>
-                    setState(() => warehouseStatus = value.toString()),
-                validator: (value) {
-                  // Tambahkan validator
-                  if (value == null || value.isEmpty) {
-                    return 'Warehouse Status is required';
-                  }
-                  return null;
-                },
+              SizedBox(height: 10),
+              Text(
+                'Warehouse Features',
+                style: pjsMedium16,
               ),
-              TextFormField(
+              SizedBox(height: 5),
+              CustomTextField(
                 controller: featuresController,
-                decoration: InputDecoration(labelText: 'Features'),
+                hintText: 'Features',
                 onChanged: (value) => setState(() => features = value),
                 validator: (value) {
                   // Tambahkan validator
@@ -639,9 +613,15 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                   return null;
                 },
               ),
-              TextFormField(
+              SizedBox(height: 10),
+              Text(
+                'Additional Notes',
+                style: pjsMedium16,
+              ),
+              SizedBox(height: 5),
+              CustomTextFieldMax(
                 controller: additionalNotesController,
-                decoration: InputDecoration(labelText: 'Additional Notes'),
+                maxLines: 5,
                 onChanged: (value) => setState(() => additionalNotes = value),
                 validator: (value) {
                   // Tambahkan validator
@@ -651,13 +631,12 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                   return null;
                 },
               ),
-              TextFormField(
+              SizedBox(height: 15),
+              CustomTextFormFieldPrice(
                 controller: pricePerDayController,
+                labelText: 'Price per Day',
+                labelStyle: pjsMedium16,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: 'Price per Day',
-                  prefixText: 'Rp. ',
-                ),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
                   setState(() {
@@ -673,57 +652,111 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                   return null;
                 },
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 15),
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Price per Week',
+                  labelStyle: pjsMedium16,
+                  filled: true,
+                  fillColor: Color(0xFFF2F2F2),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0x00000000), width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 enabled: false,
                 controller:
                     TextEditingController(text: formatRupiah(pricePerDay * 7)),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 15),
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Price per Month',
+                  labelStyle: pjsMedium16,
+                  filled: true,
+                  fillColor: Color(0xFFF2F2F2),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0x00000000), width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 enabled: false,
                 controller:
                     TextEditingController(text: formatRupiah(pricePerDay * 30)),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 15),
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Price per Year',
+                  labelStyle: pjsMedium16,
+                  filled: true,
+                  fillColor: Color(0xFFF2F2F2),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0x00000000), width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 enabled: false,
                 controller: TextEditingController(
                     text: formatRupiah(pricePerDay * 365)),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  // Cek apakah form valid.
-                  bool isFormValid = _formKey.currentState!.validate();
-                  // Cek apakah gambar sudah dipilih.
-                  bool isImageSelected = _imageFile !=
-                      null; // Pastikan variabel _imageFile merepresentasikan file gambar yang dipilih.
-
-                  if (isFormValid && isImageSelected) {
-                    saveWarehouseData(); // Simpan data jika form valid dan gambar telah dipilih.
-                  } else {
-                    // Jika gambar belum dipilih, tampilkan SnackBar.
-                    if (!isImageSelected) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content:
-                                Text('You must upload a warehouse image!')),
-                      );
-                    }
-                    // Anda bisa juga menambahkan kondisi lain jika form tidak valid.
-                  }
-                },
-                child: Text('Add Warehouse'),
+              SizedBox(height: 15),
+              Text('Warehouse Image', style: pjsMedium16),
+              SizedBox(height: 5),
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF2F2F2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _imageFile != null
+                        ? Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              Image.file(_imageFile!,
+                                  fit: BoxFit.cover, width: double.infinity),
+                              // Overlay 'X' button to allow the user to remove the image
+                              Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[
+                                      600], // Background color for the close icon
+                                  shape: BoxShape.rectangle,
+                                ),
+                                alignment: Alignment.center,
+                                child: IconButton(
+                                  icon: Icon(Icons.close, color: Colors.white),
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () {
+                                    setState(() {
+                                      // This will remove the image from the UI
+                                      _imageFile = null;
+                                    });
+                                    // Optionally, you can also add logic here to remove the image from where it is stored.
+                                    // If you're handling images that are saved on the device or uploaded, make sure to delete them from there as well.
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                        : Icon(Icons.add_a_photo,
+                            size: 50, color: Colors.grey[400]),
+                  ),
+                ),
               ),
+              SizedBox(height: 15),
+              Text('Detail Warehouse Image', style: pjsMedium16),
+              SizedBox(height: 5),
+              _buildDetailImagePicker(),
+              SizedBox(height: 10),
             ]),
           ),
         ),
