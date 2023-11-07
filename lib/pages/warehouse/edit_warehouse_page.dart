@@ -8,6 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 
+import '../../widget/custom_dropdownEdit.dart';
+
 class EditWarehousePage extends StatefulWidget {
   final Warehouse warehouse; // Assume Warehouse is a defined model class
 
@@ -592,26 +594,10 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
                         return null;
                       },
                     ),
-                    DropdownButtonFormField<String>(
-                      decoration:
-                          InputDecoration(labelText: 'Warehouse Status'),
-                      value: _warehouseStatusController.text.isNotEmpty
-                          ? _warehouseStatusController.text
-                          : null,
-                      items: ['available', 'not available'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        // If you are using a state management solution, update the state accordingly
-                        // For StatefulWidget, you might call setState or another function depending on your state management
-                        setState(() {
-                          _warehouseStatusController.text = newValue ??
-                              ''; // Set the new value to the controller
-                        });
-                      },
+                    CustomDropdownFormFieldEdit(
+                      hintText: 'Choose Warehouse Status',
+                      options: ['available', 'not available'],
+                      controller: _warehouseStatusController,
                       validator: (value) {
                         // Validation to ensure a category is selected
                         if (value == null || value.isEmpty) {

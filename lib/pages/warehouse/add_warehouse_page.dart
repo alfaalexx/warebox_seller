@@ -8,6 +8,12 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart' as Path;
+import 'package:warebox_seller/utils/custom_themes.dart';
+
+import '../../widget/custom_textfield.dart';
+import '../../widget/custom_dropdown.dart';
+import '../../widget/custom_textfieldmax.dart';
+import '../../widget/custom_numberfield.dart';
 
 class AddWarehousePage extends StatefulWidget {
   const AddWarehousePage({Key? key}) : super(key: key);
@@ -303,17 +309,10 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   Widget _buildQuantityCounter(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.0),
+      height: 55.0, // Tinggi container
       decoration: BoxDecoration(
-        color: Colors.white, // Warna latar belakang container
-        borderRadius: BorderRadius.circular(30.0), // Radius border melengkung
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1), // Warna bayangan
-            spreadRadius: 0,
-            blurRadius: 10, // Seberapa kabur bayangannya
-            offset: Offset(0, 3), // Posisi bayangan
-          ),
-        ],
+        color: Color(0xFFF2F2F2), // Warna latar belakang container
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min, // Agar ukuran Row menyesuaikan isi
@@ -384,7 +383,177 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
             key: _formKey,
             autovalidateMode: AutovalidateMode
                 .onUserInteraction, // Validasi otomatis ketika pengguna berinteraksi
-            child: Column(children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                'Warehouse Name',
+                style: pjsMedium16,
+              ),
+              SizedBox(height: 5),
+              CustomTextField(
+                controller: itemNameController,
+                hintText: 'Warehouse Name',
+                onChanged: (value) => setState(() => itemName = value),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Warehouse Name is required';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Warehouse Category',
+                style: pjsMedium16,
+              ),
+              SizedBox(height: 5),
+              CustomDropdown<String>(
+                hintText: 'Choose Category Warehouse',
+                itemBuilder: (item) => item,
+                items: [
+                  'Gudang Umum',
+                  'Gudang Dingin',
+                  'Gudang Khusus',
+                  'Gudang Ecommerce'
+                ],
+                onChanged: (String? newValue) {
+                  setState(() {
+                    category = newValue!;
+                  });
+                },
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Category is required';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Warehouse Description',
+                style: pjsMedium16,
+              ),
+              SizedBox(height: 5),
+              CustomTextFieldMax(
+                controller: itemDescriptionController,
+                maxLines: 5,
+                onChanged: (value) => setState(() => itemDescription = value),
+                validator: (value) {
+                  // Tambahkan validator
+                  if (value == null || value.isEmpty) {
+                    return 'Warehouse Description is required';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Warehouse Large',
+                            style: pjsMedium16,
+                          ),
+                          SizedBox(height: 5),
+                          CustomNumberFormField(
+                            controller: itemLargeController,
+                            prefixIcon:
+                                Image.asset('assets/images/ILLUSTRATION.png'),
+                            suffixIcon: Icon(Icons.arrow_right_rounded),
+                            hintText: '10 m\u00B2',
+                            onChanged: (value) => setState(() {
+                              // Parse the input to an integer before saving it in the state.
+                              itemLarge = int.tryParse(value) ??
+                                  0; // Use tryParse to avoid exceptions
+                            }),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Warehouse Large is required';
+                              }
+                              if (int.tryParse(value) == null) {
+                                return 'Please enter a valid integer'; // Ensure the input is an integer
+                              }
+                              return null;
+                            },
+                          ),
+                        ]),
+                  ),
+                  Expanded(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Quantity ',
+                        style: pjsMedium16,
+                      ),
+                      SizedBox(height: 5),
+                      _buildQuantityCounter(context),
+                    ],
+                  ))
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Serial Number',
+                          style: pjsMedium16,
+                        ),
+                        SizedBox(height: 5),
+                        CustomTextField(
+                          controller: serialNumberController,
+                          hintText: 'Serial Number',
+                          onChanged: (value) =>
+                              setState(() => serialNumber = value),
+                          validator: (value) {
+                            // Tambahkan validator
+                            if (value == null || value.isEmpty) {
+                              return 'Serial Number is required';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 5),
+                  Expanded(
+                      child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Warehouse Status',
+                        style: pjsMedium16,
+                      ),
+                      SizedBox(height: 5),
+                      CustomDropdown(
+                        itemBuilder: (item) => item,
+                        items: ['available', 'not available'],
+                        onChanged: (value) =>
+                            setState(() => warehouseStatus = value.toString()),
+                        validator: (value) {
+                          // Tambahkan validator
+                          if (value == null || value.isEmpty) {
+                            return 'Warehouse Status is required';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  )),
+                ],
+              ),
               Text('Warehouse Image'),
               GestureDetector(
                 onTap: _pickImage,
@@ -433,93 +602,6 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
               Text('Detail Warehouse Image'),
               _buildDetailImagePicker(),
               TextFormField(
-                controller: itemNameController,
-                decoration: InputDecoration(labelText: 'Item Name'),
-                onChanged: (value) => setState(() => itemName = value),
-                validator: (value) {
-                  // Tambahkan validator
-                  if (value == null || value.isEmpty) {
-                    return 'Item Name is required';
-                  }
-                  return null;
-                },
-              ),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: 'Category'),
-                value: category.isNotEmpty ? category : null,
-                items: [
-                  'Gudang Umum',
-                  'Gudang Dingin',
-                  'Gudang Khusus',
-                  'Gudang Ecommerce'
-                ].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    category = newValue!;
-                  });
-                },
-                validator: (value) {
-                  // Tambahkan validator
-                  if (value == null || value.isEmpty) {
-                    return 'Category is required';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: itemDescriptionController,
-                decoration: InputDecoration(labelText: 'Item Description'),
-                onChanged: (value) => setState(() => itemDescription = value),
-                validator: (value) {
-                  // Tambahkan validator
-                  if (value == null || value.isEmpty) {
-                    return 'Item Description is required';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: itemLargeController,
-                decoration: InputDecoration(labelText: 'Item Large'),
-                keyboardType: TextInputType.number, // Show number keyboard type
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly // Allow only numbers
-                ],
-                onChanged: (value) => setState(() {
-                  // Parse the input to an integer before saving it in the state.
-                  itemLarge = int.tryParse(value) ??
-                      0; // Use tryParse to avoid exceptions
-                }),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Item Large is required';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Please enter a valid integer'; // Ensure the input is an integer
-                  }
-                  return null;
-                },
-              ),
-              Text('Quantity'),
-              _buildQuantityCounter(context),
-              TextFormField(
-                controller: serialNumberController,
-                decoration: InputDecoration(labelText: 'Serial Number'),
-                onChanged: (value) => setState(() => serialNumber = value),
-                validator: (value) {
-                  // Tambahkan validator
-                  if (value == null || value.isEmpty) {
-                    return 'Serial Number is required';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
                 controller: locationController,
                 decoration: InputDecoration(labelText: 'Location'),
                 onChanged: (value) => setState(() => location = value),
@@ -531,15 +613,10 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                   return null;
                 },
               ),
-              DropdownButtonFormField(
-                decoration: InputDecoration(labelText: 'Warehouse Status'),
-                value: warehouseStatus,
-                items: ['available', 'not available'].map((value) {
-                  return DropdownMenuItem(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+              CustomDropdown(
+                hintText: 'Choose Warehouse Status',
+                itemBuilder: (item) => item,
+                items: ['available', 'not available'],
                 onChanged: (value) =>
                     setState(() => warehouseStatus = value.toString()),
                 validator: (value) {

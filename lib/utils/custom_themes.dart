@@ -97,6 +97,12 @@ final TextStyle pjsSemiBold16Red = GoogleFonts.plusJakartaSans(
   fontWeight: FontWeight.w600,
 );
 
+final TextStyle pjsSemiBold12Red = GoogleFonts.plusJakartaSans(
+  color: Color(0xFFFA4D5E),
+  fontSize: 12,
+  fontWeight: FontWeight.w400,
+);
+
 final TextStyle pjsMedium24 = GoogleFonts.plusJakartaSans(
   color: Colors.black,
   fontSize: 24,
