@@ -3,8 +3,8 @@ import 'package:warebox_seller/pages/warehouse/warehouse_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:warebox_seller/pages/warehouse/edit_warehouse_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class DetailWarehousePage extends StatefulWidget {
   final String warehouseId;
@@ -196,21 +196,12 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
                   style: TextStyle(fontSize: 20)),
               SizedBox(height: 16),
               warehouse!.warehouseImageUrl != null
-                  ? Image.network(
-                      warehouse!.warehouseImageUrl!,
+                  ? CachedNetworkImage(
+                      imageUrl: warehouse!.warehouseImageUrl!,
                       fit: BoxFit.cover,
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
+                      placeholder: (context, url) =>
+                          Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
                     )
                   : Container(
                       height: 200,
@@ -219,46 +210,42 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
               SizedBox(height: 16),
               warehouse!.detailImageUrls != null &&
                       warehouse!.detailImageUrls!.isNotEmpty
-                  ? CarouselSlider(
-                      options: CarouselOptions(
-                        aspectRatio: 16 / 9,
-                        enlargeCenterPage: true,
+                  ? Container(
+                      height:
+                          200, // Atur tinggi container sesuai dengan kebutuhan
+                      child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        autoPlay: true,
+                        itemCount: warehouse!.detailImageUrls!.length,
+                        itemBuilder: (context, index) {
+                          String imageUrl = warehouse!.detailImageUrls![index];
+                          return Container(
+                            width: MediaQuery.of(context).size.width *
+                                0.8, // Atur lebar card sesuai dengan kebutuhan
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10), // Atur padding horizontal
+                            child: Card(
+                              clipBehavior: Clip.antiAlias,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    12), // Atur radius border card
+                              ),
+                              child: CachedNetworkImage(
+                                imageUrl: imageUrl,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) =>
+                                    Center(child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      items: warehouse!.detailImageUrls!.map((imageUrl) {
-                        // Remove the `.take(5)`
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: EdgeInsets.symmetric(horizontal: 5.0),
-                              child: Image.network(imageUrl, fit: BoxFit.cover,
-                                  loadingBuilder: (BuildContext context,
-                                      Widget child,
-                                      ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                                  ),
-                                );
-                              }),
-                            );
-                          },
-                        );
-                      }).toList(),
                     )
                   : Container(
                       height: 200,
                       child: Center(child: Text('No images available')),
                     ),
-              // Tambahkan elemen UI lain sesuai kebutuhan
             ],
           ),
         ),

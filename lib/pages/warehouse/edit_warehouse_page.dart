@@ -7,8 +7,15 @@ import 'package:warebox_seller/pages/warehouse/warehouse_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:warebox_seller/utils/custom_themes.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../widget/custom_dropdownEdit.dart';
+import '../../widget/custom_textfieldEdit.dart';
+import '../../widget/custom_textfieldmax.dart';
+import '../../widget/custom_numberfield.dart';
+import '../../widget/custom_textfieldPriceEdit.dart';
 
 class EditWarehousePage extends StatefulWidget {
   final Warehouse warehouse; // Assume Warehouse is a defined model class
@@ -310,9 +317,12 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
           // Display existing image
           return Stack(
             children: [
-              Image.network(
-                existingImageUrls[index],
+              CachedNetworkImage(
+                imageUrl: existingImageUrls[index],
                 fit: BoxFit.cover,
+                placeholder: (context, url) =>
+                    Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => Icon(Icons.error),
               ),
               Positioned(
                 top: 4,
@@ -425,17 +435,10 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
   Widget _buildQuantityCounter(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.0),
+      height: 55.0, // Tinggi container
       decoration: BoxDecoration(
-        color: Colors.white, // Warna latar belakang container
-        borderRadius: BorderRadius.circular(30.0), // Radius border melengkung
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1), // Warna bayangan
-            spreadRadius: 0,
-            blurRadius: 10, // Seberapa kabur bayangannya
-            offset: Offset(0, 3), // Posisi bayangan
-          ),
-        ],
+        color: Color(0xFFF2F2F2), // Warna latar belakang container
+        borderRadius: BorderRadius.circular(12), // Radius border melengkung
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -483,7 +486,33 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Warehouse'),
+        title: Text(
+          'Edit Warehouse',
+          textAlign: TextAlign.start,
+          style: GoogleFonts.plusJakartaSans(
+              fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.black),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  setState(() => _isLoading = true);
+                  try {
+                    await _updateWarehouse();
+                    // Jika berhasil, mungkin navigasi keluar atau tampilkan pesan sukses.
+                  } catch (error) {
+                    // Handle error, tampilkan pesan error.
+                  } finally {
+                    setState(() => _isLoading = false);
+                  }
+                }
+              },
+              child: Text('Save', style: pjsMedium16Tosca))
+        ],
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
@@ -492,101 +521,165 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
               child: Form(
                 key: _formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     SizedBox(height: 20),
-                    if (_imageFile != null)
-                      Image.file(_imageFile!)
-                    else if (widget.warehouse.warehouseImageUrl != null)
-                      Image.network(widget.warehouse.warehouseImageUrl!)
-                    else
-                      Text('No image selected'),
-                    ElevatedButton(
-                      onPressed: _pickImage,
-                      child: Text('Select Image'),
+                    Text(
+                      'Warehouse Name',
+                      style: pjsMedium16,
                     ),
-                    SizedBox(height: 20),
-                    _buildDetailImagePicker(),
-                    SizedBox(height: 20),
-                    TextFormField(
+                    SizedBox(height: 5),
+                    CustomTextFieldEdit(
                       controller: _nameController,
-                      decoration: InputDecoration(labelText: 'Name'),
+                      hintText: 'Warehouse Name',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter warehouse name';
+                          return 'Please enter Warehouse name';
                         }
                         return null;
                       },
                     ),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(labelText: 'Category'),
-                      value: _categoryController.text.isNotEmpty
-                          ? _categoryController.text
-                          : null,
-                      items: [
+                    SizedBox(height: 10),
+                    Text(
+                      'Warehouse Category',
+                      style: pjsMedium16,
+                    ),
+                    SizedBox(height: 5),
+                    CustomDropdownFormFieldEdit(
+                      hintText: 'Choose Warehouse Category',
+                      options: [
                         'Gudang Umum',
                         'Gudang Dingin',
                         'Gudang Khusus',
                         'Gudang Ecommerce'
-                      ].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        // If you are using a state management solution, update the state accordingly
-                        // For StatefulWidget, you might call setState or another function depending on your state management
-                        setState(() {
-                          _categoryController.text = newValue ??
-                              ''; // Set the new value to the controller
-                        });
-                      },
+                      ],
+                      controller: _categoryController,
                       validator: (value) {
                         // Validation to ensure a category is selected
                         if (value == null || value.isEmpty) {
-                          return 'Category is required';
+                          return 'Warehouse Category is required';
                         }
                         return null;
                       },
                     ),
-                    TextFormField(
+                    SizedBox(height: 10),
+                    Text(
+                      'Warehouse Description',
+                      style: pjsMedium16,
+                    ),
+                    SizedBox(height: 5),
+                    CustomTextFieldMax(
                       controller: _itemDescriptionController,
-                      decoration:
-                          const InputDecoration(labelText: 'Item Description'),
+                      maxLines: 5,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter a Item Description.';
+                          return 'Please enter a Warehouse Description.';
                         }
                         return null;
                       },
                     ),
-                    TextFormField(
-                      controller: _itemLargeController,
-                      decoration:
-                          const InputDecoration(labelText: 'Item Large'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a Item Large.';
-                        }
-                        return null;
-                      },
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Warehouse Large',
+                                style: pjsMedium16,
+                              ),
+                              SizedBox(height: 5),
+                              CustomNumberFormField(
+                                controller: _itemLargeController,
+                                prefixIcon: Image.asset(
+                                    'assets/images/ILLUSTRATION.png'),
+                                suffixIcon: Icon(Icons.arrow_right_rounded),
+                                hintText: '10 m\u00B2',
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a Item Large.';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                            child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text('Quantity', style: pjsMedium16),
+                            SizedBox(height: 5),
+                            _buildQuantityCounter(context),
+                          ],
+                        ))
+                      ],
                     ),
-                    Text('Quantity'),
-                    _buildQuantityCounter(context),
-                    TextFormField(
-                      controller: _serialNumberController,
-                      decoration:
-                          const InputDecoration(labelText: 'Serial Number'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a Serial Number.';
-                        }
-                        return null;
-                      },
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Serial Number',
+                                style: pjsMedium16,
+                              ),
+                              SizedBox(height: 5),
+                              CustomTextFieldEdit(
+                                controller: _serialNumberController,
+                                hintText: 'Serial Number',
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a Serial Number.';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Warehouse Status',
+                                style: pjsMedium16,
+                              ),
+                              SizedBox(height: 5),
+                              CustomDropdownFormFieldEdit(
+                                hintText: 'Choose Warehouse Status',
+                                options: ['available', 'not available'],
+                                controller: _warehouseStatusController,
+                                validator: (value) {
+                                  // Validation to ensure a category is selected
+                                  if (value == null || value.isEmpty) {
+                                    return 'Warehouse Status is required';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
                     ),
-                    TextFormField(
+                    SizedBox(height: 10),
+                    Text(
+                      'Location',
+                      style: pjsMedium16,
+                    ),
+                    SizedBox(height: 5),
+                    CustomTextFieldEdit(
                       controller: _locationController,
-                      decoration: const InputDecoration(labelText: 'Location'),
+                      prefixIcon: ImageIcon(
+                          AssetImage("assets/images/icon _map marker_.png")),
+                      hintText: 'Location',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a Location.';
@@ -594,21 +687,15 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
                         return null;
                       },
                     ),
-                    CustomDropdownFormFieldEdit(
-                      hintText: 'Choose Warehouse Status',
-                      options: ['available', 'not available'],
-                      controller: _warehouseStatusController,
-                      validator: (value) {
-                        // Validation to ensure a category is selected
-                        if (value == null || value.isEmpty) {
-                          return 'Warehouse Status is required';
-                        }
-                        return null;
-                      },
+                    SizedBox(height: 10),
+                    Text(
+                      'Warehouse Features',
+                      style: pjsMedium16,
                     ),
-                    TextFormField(
+                    SizedBox(height: 5),
+                    CustomTextFieldEdit(
                       controller: _featuresController,
-                      decoration: const InputDecoration(labelText: 'Feature'),
+                      hintText: 'Warehouse Features',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a Feature.';
@@ -616,10 +703,15 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
                         return null;
                       },
                     ),
-                    TextFormField(
+                    SizedBox(height: 10),
+                    Text(
+                      'Additional Notes',
+                      style: pjsMedium16,
+                    ),
+                    SizedBox(height: 5),
+                    CustomTextFieldMax(
                       controller: _additionalNotesController,
-                      decoration:
-                          const InputDecoration(labelText: 'Additional Notes'),
+                      maxLines: 5,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a Additional Notes.';
@@ -627,14 +719,13 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
                         return null;
                       },
                     ),
-                    TextFormField(
+                    SizedBox(height: 15),
+                    CustomTextFieldPriceEdit(
                       controller: _pricePerDayController,
+                      labelText: 'Price Per Day',
+                      labelStyle: pjsMedium16,
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(
-                        labelText: 'Price per Day',
-                        prefixText: 'Rp. ',
-                      ),
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -643,35 +734,116 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
                         return null;
                       },
                     ),
+                    SizedBox(height: 15),
                     TextFormField(
-                      controller: TextEditingController(),
+                      controller: _pricePerWeekController,
                       enabled: false,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Price per Week',
                         prefixText: 'Rp. ',
+                        labelStyle: pjsMedium16,
+                        filled: true,
+                        fillColor: Color(0xFFF2F2F2),
+                        disabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0x00000000), width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
+                    SizedBox(height: 15),
                     TextFormField(
                       controller: _pricePerMonthController,
                       enabled: false,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Price per Month',
                         prefixText: 'Rp. ',
+                        labelStyle: pjsMedium16,
+                        filled: true,
+                        fillColor: Color(0xFFF2F2F2),
+                        disabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0x00000000), width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
+                    SizedBox(height: 15),
                     TextFormField(
                       controller: _pricePerYearController,
                       enabled: false,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Price per Year',
                         prefixText: 'Rp. ',
+                        labelStyle: pjsMedium16,
+                        filled: true,
+                        fillColor: Color(0xFFF2F2F2),
+                        disabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0x00000000), width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                     SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _updateWarehouse,
-                      child: Text('Update Warehouse'),
+                    Text(
+                      'Warehouse Image',
+                      style: pjsMedium16,
                     ),
+                    SizedBox(height: 5),
+                    if (_imageFile != null)
+                      Image.file(_imageFile!)
+                    else if (widget.warehouse.warehouseImageUrl != null)
+                      CachedNetworkImage(
+                        imageUrl: widget.warehouse.warehouseImageUrl!,
+                        placeholder: (context, url) =>
+                            Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                        fit: BoxFit.cover,
+                      )
+                    else
+                      Container(
+                        width: double.infinity, // Set the width as needed
+                        height: 200.0, // Set the height as needed
+                        decoration: BoxDecoration(
+                          color: Colors.grey[
+                              200], // Set the background color of the placeholder
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add_photo_alternate, // 'Add image' icon
+                                color: Colors
+                                    .grey[600], // Set the color of the icon
+                                size: 50.0, // Set the size of the icon
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    Container(
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        onPressed: _pickImage,
+                        style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            backgroundColor: Color(0xFF2E9496),
+                            foregroundColor: Colors.white),
+                        child: Text('Select Image'),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Detail Warehouse Image',
+                      style: pjsMedium16,
+                    ),
+                    SizedBox(height: 5),
+                    _buildDetailImagePicker(),
+                    SizedBox(height: 10),
                   ],
                 ),
               ),

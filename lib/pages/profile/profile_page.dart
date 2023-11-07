@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // Import Firebase Core
 // import '../../utils/color_resources.dart';
@@ -140,8 +141,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
                           child: profileImageUrl.isNotEmpty
-                              ? Image.network(
-                                  profileImageUrl) // Tampilkan gambar profil dari URL
+                              ? CachedNetworkImage(
+                                  imageUrl: profileImageUrl,
+                                  placeholder: (context, url) =>
+                                      CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
+                                  fit: BoxFit.cover,
+                                ) // Tampilkan gambar profil dari URL
                               : Image.asset(
                                   "assets/images/logo.png"), // Gambar default jika tidak ada gambar profil
                         ),

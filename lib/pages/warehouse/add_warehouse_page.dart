@@ -143,8 +143,8 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
 
     for (var imageFile in _detailImageFiles) {
       try {
-        final ref = FirebaseStorage.instance.ref(
-            'warehouse_detail_images/$uid/${Path.basename(imageFile.path)}');
+        final ref = FirebaseStorage.instance
+            .ref('warehouse_images/$uid/${Path.basename(imageFile.path)}');
         await ref.putFile(imageFile);
         final downloadUrl = await ref.getDownloadURL();
         uploadedUrls.add(downloadUrl);

@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:warebox_seller/utils/custom_themes.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../utils/color_resources.dart';
 
@@ -205,28 +206,39 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         children: [
                           GestureDetector(
                             onTap: () {},
-                            child: profileImageUrl != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                        50), // Use BorderRadius
-                                    child: Image.network(
-                                      profileImageUrl!,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                  50), // This creates a circular shape
+                              child: profileImageUrl != null
+                                  ? CachedNetworkImage(
+                                      imageUrl: profileImageUrl!,
                                       width: 100,
                                       height: 100,
                                       fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                        50), // Use BorderRadius here as well
-                                    child: Container(
+                                      placeholder: (context, url) => Container(
+                                        width: 100,
+                                        height: 100,
+                                        color: Colors.grey,
+                                        child: Center(
+                                            child: CircularProgressIndicator()),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Container(
+                                        width: 100,
+                                        height: 100,
+                                        color: Colors.grey,
+                                        child: Center(child: Icon(Icons.error)),
+                                      ),
+                                    )
+                                  : Container(
                                       width: 100,
                                       height: 100,
-                                      color: Colors
-                                          .grey, // Assuming you want a placeholder color
-                                      child: Icon(Icons.add_a_photo, size: 100),
+                                      color: Colors.grey,
+                                      child: Center(
+                                          child: Icon(Icons.add_a_photo,
+                                              size: 50)),
                                     ),
-                                  ),
+                            ),
                           ),
                           TextButton(
                               onPressed: () {
