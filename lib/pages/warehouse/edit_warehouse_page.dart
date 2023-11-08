@@ -257,6 +257,7 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
       // Create a map of data to update
       Map<String, dynamic> updatedData = {
         'itemName': _nameController.text,
+        'itemName_lowercase': _nameController.text.toLowerCase(),
         'category': _categoryController.text,
         'itemDescription': _itemDescriptionController.text,
         'itemLarge': int.tryParse(_itemLargeController.text),

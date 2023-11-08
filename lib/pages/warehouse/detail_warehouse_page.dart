@@ -5,6 +5,11 @@ import 'package:warebox_seller/pages/warehouse/edit_warehouse_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:warebox_seller/utils/custom_themes.dart';
+import 'package:intl/intl.dart';
+import 'package:expandable/expandable.dart';
+
+import '../../utils/color_resources.dart';
 
 class DetailWarehousePage extends StatefulWidget {
   final String warehouseId;
@@ -26,6 +31,12 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
   void initState() {
     super.initState();
     _loadWarehouseData();
+  }
+
+  String formatRupiah(double value) {
+    final formatter = NumberFormat.currency(
+        locale: 'id_ID', symbol: 'Rp. ', decimalDigits: 0);
+    return formatter.format(value);
   }
 
   Future<void> deleteWarehouseImages(List<String> imageUrls) async {
@@ -92,6 +103,22 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
         false; // Return false if dialog is dismissed
   }
 
+  Future<Map<String, dynamic>?> getUserProfileData(String uid) async {
+    try {
+      DocumentSnapshot userProfileSnapshot =
+          await FirebaseFirestore.instance.collection('profile').doc(uid).get();
+
+      if (userProfileSnapshot.exists) {
+        return userProfileSnapshot.data() as Map<String, dynamic>?;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error getting user profile data: $e');
+      return null;
+    }
+  }
+
   void _loadWarehouseData() async {
     try {
       DocumentSnapshot warehouseSnapshot = await FirebaseFirestore.instance
@@ -154,6 +181,7 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
       );
     } else {
       return Scaffold(
+        backgroundColor: Color(0xFFF2F5F9),
         appBar: AppBar(
           title: Text(
             'Details',
@@ -185,28 +213,266 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
         body: SingleChildScrollView(
           padding: EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Text('ID: ${warehouse!.id}', style: TextStyle(fontSize: 24)),
-              SizedBox(height: 8),
-              Text('Name: ${warehouse!.itemName}',
-                  style: TextStyle(fontSize: 20)),
-              SizedBox(height: 8),
-              Text('Category: ${warehouse!.category}',
-                  style: TextStyle(fontSize: 20)),
-              SizedBox(height: 16),
-              warehouse!.warehouseImageUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: warehouse!.warehouseImageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          Center(child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    )
-                  : Container(
-                      height: 200,
-                      child: Center(child: Text('No image available')),
+              Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(14, 14, 0, 14),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: warehouse!.warehouseImageUrl != null
+                              ? CachedNetworkImage(
+                                  imageUrl: warehouse!.warehouseImageUrl!,
+                                  fit: BoxFit.fill,
+                                  placeholder: (context, url) =>
+                                      CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
+                                )
+                              : Icon(Icons.image, size: 100),
+                        ),
+                      ),
                     ),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(14, 14, 14, 14),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment
+                                .start, // Align text to the left side
+                            children: [
+                              Text(
+                                '${warehouse!.category}',
+                                style: pjsMedium16Tosca,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text(
+                                  '${warehouse!.itemName}',
+                                  style: pjsMedium18,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text(
+                                  '${warehouse!.location}',
+                                  style: pjsMedium12Grey,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 20),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    ImageIcon(
+                                      AssetImage(
+                                          "assets/images/Icon_ruler.png"),
+                                      color: Colors.grey,
+                                      size: 16,
+                                    ),
+                                    SizedBox(width: 5),
+                                    Text(
+                                      '${warehouse!.itemLarge} m²',
+                                      style: pjsMedium16Grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 20),
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text:
+                                            '${formatRupiah(warehouse!.pricePerMonth)} ',
+                                        style:
+                                            pjsMedium16Tosca2, // Your existing style for 'Rp. 300.000'
+                                      ),
+                                      TextSpan(
+                                        text: '/ Month',
+                                        style: pjsMedium12,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 25),
+              FutureBuilder<Map<String, dynamic>?>(
+                future: getUserProfileData(warehouse!.uid),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (snapshot.hasData) {
+                    var userProfile = snapshot.data!;
+                    return Container(
+                      height: 70,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding:
+                                EdgeInsetsDirectional.fromSTEB(14, 14, 14, 14),
+                            child: ClipOval(
+                              child: userProfile['profile_image'] != null
+                                  ? CachedNetworkImage(
+                                      imageUrl: userProfile['profile_image'],
+                                      fit: BoxFit.cover,
+                                      width: 40,
+                                      height: 40,
+                                      placeholder: (context, url) =>
+                                          CircularProgressIndicator(),
+                                      errorWidget: (context, url, error) =>
+                                          Icon(Icons.error),
+                                    )
+                                  : Container(
+                                      // This is the placeholder for when the image is null
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.grey[200],
+                                      ),
+                                      child: Icon(
+                                        Icons.person,
+                                        color: Colors.grey[400],
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          Text(" ${userProfile['username']}",
+                              style: pjsMedium16),
+                          Spacer(),
+                          Padding(
+                            padding:
+                                EdgeInsetsDirectional.fromSTEB(0, 0, 20, 0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(
+                                  "assets/images/Icon_wa.png",
+                                ),
+                                SizedBox(width: 5),
+                                Text("Hubungi", style: pjsMedium16),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return Text('User profile not found.');
+                  }
+                },
+              ),
+              SizedBox(height: 25),
+              ExpandableNotifier(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Expanded(
+                    child: Column(
+                      children: [
+                        ExpandablePanel(
+                          theme: const ExpandableThemeData(
+                            headerAlignment:
+                                ExpandablePanelHeaderAlignment.center,
+                            tapBodyToExpand: true,
+                            tapBodyToCollapse: true,
+                            hasIcon: true,
+                            iconColor: Colors.black,
+                          ),
+                          header: Padding(
+                            padding: const EdgeInsets.only(left: 14, right: 14),
+                            child: Text(
+                              "Warehouse Description",
+                              style: pjsMedium16,
+                            ),
+                          ),
+                          collapsed: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 14, right: 14, bottom: 14),
+                            child: Text(
+                              "${warehouse!.itemDescription}",
+                              softWrap: true,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: pjsMedium16Grey,
+                            ),
+                          ),
+                          expanded: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 14, right: 14, bottom: 14),
+                            child: Text(
+                              "${warehouse!.itemDescription}",
+                              softWrap: true,
+                              style: pjsMedium16Grey,
+                            ),
+                          ),
+                          builder: (_, collapsed, expanded) {
+                            return Expandable(
+                              collapsed: collapsed,
+                              expanded: expanded,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 25),
+              Container(
+                width: double.infinity,
+                child: Text("Warehouse Features", style: pjsMedium16),
+              ),
+              SizedBox(height: 5),
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(14.0),
+                  child: Text("${warehouse!.features}"),
+                ),
+              ),
+              SizedBox(height: 25),
+              Container(
+                width: double.infinity,
+                child: Text("Detail Warehouse", style: pjsMedium16),
+              ),
               SizedBox(height: 16),
               warehouse!.detailImageUrls != null &&
                       warehouse!.detailImageUrls!.isNotEmpty
@@ -247,6 +513,22 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
                       child: Center(child: Text('No images available')),
                     ),
             ],
+          ),
+        ),
+        bottomNavigationBar: Padding(
+          padding: EdgeInsets.all(10.0), // Add some padding if needed
+          child: ElevatedButton(
+            onPressed: () {
+              // Your button press code here
+            },
+            child: Text('Reservation', style: pjsExtraBold20),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorResources.wareboxTosca,
+              minimumSize: const Size(double.infinity, 60),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ), // Set the button size
+            ),
           ),
         ),
       );
