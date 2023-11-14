@@ -468,10 +468,6 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
               SizedBox(height: 5),
               Container(
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
                 child: Padding(
                   padding: const EdgeInsets.all(14.0),
                   child: Wrap(
@@ -479,7 +475,8 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
                     children: warehouse!.features.map((feature) {
                       return Chip(
                         label: Text(feature),
-                        backgroundColor: Colors.grey[300],
+                        labelStyle: pjsMedium16Tosca,
+                        backgroundColor: Colors.white,
                       );
                     }).toList(),
                   ),
