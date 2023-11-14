@@ -38,13 +38,13 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
   String serialNumber = '';
   String location = '';
   String warehouseStatus = 'available';
-  String features = '';
   String additionalNotes = '';
   double pricePerDay = 0.0;
   double pricePerWeek = 0.0;
   double pricePerMonth = 0.0;
   double pricePerYear = 0.0;
   File? _imageFile;
+  List<String> features = [];
   List<File> _detailImageFiles = [];
   final ImagePicker _picker = ImagePicker();
   bool _isSaving = false;
@@ -304,6 +304,76 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
           );
         }
       },
+    );
+  }
+
+  Widget _buildFeaturesPicker() {
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics:
+              NeverScrollableScrollPhysics(), // untuk mencegah scrolling pada ListView
+          itemCount: features.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text(features[index]),
+              trailing: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  setState(() {
+                    features.removeAt(index);
+                  });
+                },
+              ),
+            );
+          },
+        ),
+        TextButton(
+          child: Text('Add Feature'),
+          onPressed: () async {
+            if (features.length >= 4) {
+              // Tampilkan pesan bahwa tidak bisa menambah lebih dari 4 fitur
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Maximum of 4 features can be added'),
+                ),
+              );
+              return;
+            }
+
+            final String? newFeature = await showDialog<String>(
+              context: context,
+              builder: (BuildContext context) {
+                String tempFeature = '';
+                return AlertDialog(
+                  title: Text('Add New Feature'),
+                  content: TextField(
+                    onChanged: (value) => tempFeature = value,
+                    decoration: InputDecoration(hintText: 'Enter a feature'),
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    TextButton(
+                      child: Text('Add'),
+                      onPressed: () => Navigator.of(context).pop(tempFeature),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (newFeature != null && newFeature.isNotEmpty) {
+              setState(() {
+                features.add(newFeature);
+              });
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -601,18 +671,7 @@ class _AddWarehousePageState extends State<AddWarehousePage> {
                 style: pjsMedium16,
               ),
               SizedBox(height: 5),
-              CustomTextField(
-                controller: featuresController,
-                hintText: 'Features',
-                onChanged: (value) => setState(() => features = value),
-                validator: (value) {
-                  // Tambahkan validator
-                  if (value == null || value.isEmpty) {
-                    return 'Features is required';
-                  }
-                  return null;
-                },
-              ),
+              _buildFeaturesPicker(),
               SizedBox(height: 10),
               Text(
                 'Additional Notes',

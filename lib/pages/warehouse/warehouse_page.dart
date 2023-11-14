@@ -22,7 +22,7 @@ class Warehouse {
   final String serialNumber;
   final String location;
   final String warehouseStatus;
-  final String features;
+  final List<String> features;
   final String additionalNotes;
   final double pricePerDay;
   final double pricePerWeek;
@@ -43,7 +43,7 @@ class Warehouse {
     this.serialNumber = '',
     this.location = '',
     this.warehouseStatus = 'available',
-    this.features = '',
+    required this.features,
     this.additionalNotes = '',
     this.pricePerDay = 0.0,
     this.pricePerWeek = 0.0,
@@ -67,7 +67,10 @@ class Warehouse {
     String serialNumber = data['serialNumber'] as String? ?? '';
     String location = data['location'] as String? ?? '';
     String warehouseStatus = data['warehouseStatus'] as String? ?? 'available';
-    String features = data['features'] as String? ?? '';
+    List<String> features = (data['features'] as List<dynamic>?)
+            ?.map((e) => e as String)
+            .toList() ??
+        [];
     String additionalNotes = data['additionalNotes'] as String? ?? '';
     double pricePerDay = (data['pricePerDay'] as num?)?.toDouble() ?? 0.0;
     double pricePerWeek = (data['pricePerWeek'] as num?)?.toDouble() ?? 0.0;

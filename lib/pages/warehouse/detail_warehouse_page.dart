@@ -474,7 +474,15 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(14.0),
-                  child: Text("${warehouse!.features}"),
+                  child: Wrap(
+                    spacing: 8.0, // Adjust the spacing between features
+                    children: warehouse!.features.map((feature) {
+                      return Chip(
+                        label: Text(feature),
+                        backgroundColor: Colors.grey[300],
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
               SizedBox(height: 25),

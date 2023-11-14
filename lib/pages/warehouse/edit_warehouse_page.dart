@@ -34,6 +34,7 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
   bool _isLoading = false;
   String? uid = FirebaseAuth.instance.currentUser?.uid;
   List<File> _detailImageFiles = [];
+  List<String> _currentFeatures = [];
 
   late TextEditingController _nameController;
   late TextEditingController _categoryController;
@@ -83,7 +84,8 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
     _warehouseStatusController =
         TextEditingController(text: widget.warehouse.warehouseStatus);
     _featuresController =
-        TextEditingController(text: widget.warehouse.features);
+        TextEditingController(text: widget.warehouse.features.join(', '));
+    _currentFeatures = _featuresController.text.split(', ');
     _additionalNotesController =
         TextEditingController(text: widget.warehouse.additionalNotes);
     _pricePerDayController =
@@ -265,7 +267,7 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
         'serialNumber': _serialNumberController.text,
         'location': _locationController.text,
         'warehouseStatus': _warehouseStatusController.text,
-        'features': _featuresController.text,
+        'features': _currentFeatures,
         'additionalNotes': _additionalNotesController.text,
         'pricePerDay': double.tryParse(_pricePerDayController.text),
         'pricePerWeek': double.tryParse(_pricePerWeekController.text),
@@ -430,6 +432,76 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
           );
         }
       },
+    );
+  }
+
+  Widget _buildFeaturesPicker() {
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics:
+              NeverScrollableScrollPhysics(), // untuk mencegah scrolling pada ListView
+          itemCount: _currentFeatures.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text(_currentFeatures[index]),
+              trailing: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  setState(() {
+                    _currentFeatures.removeAt(index);
+                  });
+                },
+              ),
+            );
+          },
+        ),
+        TextButton(
+          child: Text('Add Feature'),
+          onPressed: () async {
+            if (_currentFeatures.length >= 4) {
+              // Tampilkan pesan bahwa tidak bisa menambah lebih dari 4 fitur
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Maximum of 4 features can be added'),
+                ),
+              );
+              return;
+            }
+
+            final String? newFeature = await showDialog<String>(
+              context: context,
+              builder: (BuildContext context) {
+                String tempFeature = '';
+                return AlertDialog(
+                  title: Text('Add New Feature'),
+                  content: TextField(
+                    onChanged: (value) => tempFeature = value,
+                    decoration: InputDecoration(hintText: 'Enter a feature'),
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    TextButton(
+                      child: Text('Add'),
+                      onPressed: () => Navigator.of(context).pop(tempFeature),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (newFeature != null && newFeature.isNotEmpty) {
+              setState(() {
+                _currentFeatures.add(newFeature);
+              });
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -694,16 +766,7 @@ class _EditWarehousePageState extends State<EditWarehousePage> {
                       style: pjsMedium16,
                     ),
                     SizedBox(height: 5),
-                    CustomTextFieldEdit(
-                      controller: _featuresController,
-                      hintText: 'Warehouse Features',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a Feature.';
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildFeaturesPicker(),
                     SizedBox(height: 10),
                     Text(
                       'Additional Notes',
