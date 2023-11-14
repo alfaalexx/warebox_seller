@@ -234,6 +234,15 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
                               ? CachedNetworkImage(
                                   imageUrl: warehouse!.warehouseImageUrl!,
                                   fit: BoxFit.fill,
+                                  imageBuilder: (context, imageProvider) =>
+                                      Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      image: DecorationImage(
+                                          image: imageProvider,
+                                          fit: BoxFit.cover),
+                                    ),
+                                  ),
                                   placeholder: (context, url) =>
                                       CircularProgressIndicator(),
                                   errorWidget: (context, url, error) =>
