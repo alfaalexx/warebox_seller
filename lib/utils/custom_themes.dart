@@ -42,6 +42,12 @@ final TextStyle pjsSemiBold16 = GoogleFonts.plusJakartaSans(
   color: Color(0xFF3D4966),
 );
 
+final TextStyle pjsSemiBold14 = GoogleFonts.plusJakartaSans(
+  fontSize: 14,
+  fontWeight: FontWeight.w600,
+  color: Color(0xFF1E2022),
+);
+
 final TextStyle pjsExtraBold20 = GoogleFonts.plusJakartaSans(
   fontSize: 20,
   fontWeight: FontWeight.w800,
@@ -70,6 +76,13 @@ final TextStyle pjsMedium12 = GoogleFonts.plusJakartaSans(
   color: Colors.black,
   fontSize: 12,
   fontWeight: FontWeight.w500,
+);
+
+final TextStyle pjsMedium12Tosca400 = GoogleFonts.plusJakartaSans(
+  color: Color(0xFF11A6A1),
+  fontSize: 12,
+  fontWeight: FontWeight.w400,
+  letterSpacing: 1,
 );
 
 final TextStyle pjsMedium12Grey = GoogleFonts.plusJakartaSans(
