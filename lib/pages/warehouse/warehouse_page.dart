@@ -113,9 +113,13 @@ class MyWarehousePage extends StatefulWidget {
 }
 
 class _MyWarehousePageState extends State<MyWarehousePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   User? user;
   TextEditingController searchController = TextEditingController();
   String searchKey = '';
+  String displayName = "Loading...";
+  String email = "Loading...";
+  String profileImageUrl = "";
 
   @override
   void initState() {
@@ -123,6 +127,31 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
     user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       // Handle unauthenticated user if needed
+    }
+    loadProfileData();
+  }
+
+  void loadProfileData() async {
+    final User? currentUser = _auth.currentUser;
+
+    if (currentUser != null) {
+      final String currentUid = currentUser.uid;
+      final DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('profile')
+          .doc(currentUid)
+          .get();
+
+      if (documentSnapshot.exists) {
+        var data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          displayName = data['username'];
+          email = data['email'];
+          profileImageUrl = data['profile_image'] ??
+              ""; // Ambil URL gambar profil jika tersedia
+        });
+      } else {
+        print('Data profil tidak ditemukan');
+      }
     }
   }
 
@@ -158,7 +187,8 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
         iconTheme: const IconThemeData(color: Colors.black),
         actions: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: InkWell(
               onTap: () {
                 Navigator.push(
@@ -168,10 +198,29 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                   ),
                 );
               },
-              borderRadius: BorderRadius.circular(25.0),
-              child: const CircleAvatar(
-                backgroundImage: AssetImage('assets/images/defaultAvatar.png'),
-                radius: 20.0,
+              borderRadius: BorderRadius.circular(30.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: profileImageUrl.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: profileImageUrl,
+                        placeholder: (context, url) => SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.0,
+                              color: Colors.black,
+                            )),
+                        errorWidget: (context, url, error) => Icon(
+                          Icons.error,
+                          color: Colors.red,
+                        ),
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset("assets/images/logo.png",
+                        width: 40, height: 40),
               ),
             ),
           ),
