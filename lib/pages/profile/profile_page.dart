@@ -148,9 +148,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                   errorWidget: (context, url, error) =>
                                       Icon(Icons.error),
                                   fit: BoxFit.cover,
-                                ) // Tampilkan gambar profil dari URL
-                              : Image.asset(
-                                  "assets/images/logo.png"), // Gambar default jika tidak ada gambar profil
+                                )
+                              : Image.asset("assets/images/logo.png"),
                         ),
                       ),
                     ),

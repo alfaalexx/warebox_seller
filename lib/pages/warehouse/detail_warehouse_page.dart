@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:warebox_seller/pages/warehouse/warehouse_page.dart';
+import 'package:warebox_seller/model/warehouse_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:warebox_seller/pages/warehouse/edit_warehouse_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
