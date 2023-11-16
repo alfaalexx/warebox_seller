@@ -20,6 +20,9 @@ class Warehouse {
   final double pricePerYear;
   final String? warehouseImageUrl;
   final List<String>? detailImageUrls;
+  final String country; // tambahkan field country
+  final String city; // tambahkan field city
+  final String state; // tambahkan field state
 
   Warehouse({
     required this.id,
@@ -41,6 +44,9 @@ class Warehouse {
     this.pricePerYear = 0.0,
     this.warehouseImageUrl,
     this.detailImageUrls,
+    required this.country, // tambahkan field country
+    required this.city, // tambahkan field city
+    required this.state, // tambahkan field state
   });
 
   factory Warehouse.fromSnapshot(DocumentSnapshot doc) {
@@ -70,6 +76,9 @@ class Warehouse {
     List<String>? detailImageUrls = (data['detailImageUrls'] as List<dynamic>?)
         ?.map((e) => e.toString())
         .toList();
+    String country = data['country'] as String? ?? '';
+    String city = data['city'] as String? ?? '';
+    String state = data['state'] as String? ?? '';
 
     return Warehouse(
       id: doc.id,
@@ -91,6 +100,9 @@ class Warehouse {
       pricePerYear: pricePerYear,
       warehouseImageUrl: warehouseImageUrl,
       detailImageUrls: detailImageUrls,
+      country: country, // set field country
+      city: city, // set field city
+      state: state, // set field state
     );
   }
 }
