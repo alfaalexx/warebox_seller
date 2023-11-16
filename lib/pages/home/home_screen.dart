@@ -11,6 +11,7 @@ import 'package:warebox_seller/pages/home/image_slider/image_slider.dart';
 import 'package:warebox_seller/pages/home/warehouse_category/custom_category_button.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:warebox_seller/utils/warebox_icon_icons.dart';
+import 'package:warebox_seller/pages/warehouse/category_warehouse_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -297,6 +298,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               title2: "Umum",
                               onTap: () {
                                 // Handle onTap action here
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CategoryWarehousePage(
+                                        category: "Gudang Umum"),
+                                  ),
+                                );
                               },
                             ),
                             CustomWarehouseItem(
@@ -305,6 +313,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               title2: "Khusus",
                               onTap: () {
                                 // Handle onTap action here
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CategoryWarehousePage(
+                                        category: "Gudang Khusus"),
+                                  ),
+                                );
                               },
                             ),
                             CustomWarehouseItem(
@@ -313,6 +328,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               title2: "Dingin",
                               onTap: () {
                                 // Handle onTap action here
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CategoryWarehousePage(
+                                        category: "Gudang Dingin"),
+                                  ),
+                                );
                               },
                             ),
                             CustomWarehouseItem(
@@ -321,6 +343,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               title2: "Ecommerce",
                               onTap: () {
                                 // Handle onTap action here
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CategoryWarehousePage(
+                                        category: "Gudang Ecommerce"),
+                                  ),
+                                );
                               },
                             )
                           ],
