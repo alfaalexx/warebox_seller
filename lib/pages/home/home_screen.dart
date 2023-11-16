@@ -13,6 +13,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:warebox_seller/utils/warebox_icon_icons.dart';
 import 'package:warebox_seller/pages/warehouse/category_warehouse_page.dart';
 import 'package:warebox_seller/pages/warehouse/all_warehouse_page.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -48,6 +49,12 @@ class _HomeScreenState extends State<HomeScreen> {
       // Handle unauthenticated user if needed
     }
     loadProfileData();
+  }
+
+  String formatRupiah(double value) {
+    final formatter = NumberFormat.currency(
+        locale: 'id_ID', symbol: 'Rp. ', decimalDigits: 0);
+    return formatter.format(value);
   }
 
   void loadProfileData() async {
@@ -418,30 +425,190 @@ class _HomeScreenState extends State<HomeScreen> {
                           return const Center(
                               child: Text('No warehouses found.'));
                         } else {
-                          return Column(
-                            children: snapshot.data!.docs.map((warehouse) {
-                              final Warehouse currentWarehouse =
-                                  Warehouse.fromSnapshot(warehouse);
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: snapshot.data!.docs.map((warehouse) {
+                                final Warehouse currentWarehouse =
+                                    Warehouse.fromSnapshot(warehouse);
 
-                              return ListTile(
-                                title: Text(currentWarehouse.itemName),
-                                subtitle: Text(currentWarehouse.category),
-                                onTap: () {
-                                  // Handle onTap action using currentWarehouse
-                                  print(
-                                      'Tapped on ${currentWarehouse.itemName}');
-                                  // Misalnya, navigasi ke halaman detail
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailWarehousePage(
-                                        warehouseId: currentWarehouse.id,
+                                return Container(
+                                  margin: EdgeInsets.symmetric(vertical: 5.0),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Color(0xFFE5E5E5),
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Card(
+                                    margin: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
+                                    elevation: 0,
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                DetailWarehousePage(
+                                                    warehouseId:
+                                                        currentWarehouse.id),
+                                          ),
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(0.0),
+                                        child: Row(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.only(
+                                                bottomLeft: Radius.circular(12),
+                                                topLeft: Radius.circular(12),
+                                              ),
+                                              child: currentWarehouse
+                                                          .warehouseImageUrl !=
+                                                      null
+                                                  ? CachedNetworkImage(
+                                                      imageUrl: currentWarehouse
+                                                          .warehouseImageUrl!,
+                                                      imageBuilder: (context,
+                                                              imageProvider) =>
+                                                          Container(
+                                                        width: 100.0,
+                                                        height: 100.0,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape: BoxShape
+                                                              .rectangle,
+                                                          image: DecorationImage(
+                                                              image:
+                                                                  imageProvider,
+                                                              fit:
+                                                                  BoxFit.cover),
+                                                        ),
+                                                      ),
+                                                      placeholder: (context,
+                                                              url) =>
+                                                          CircularProgressIndicator(),
+                                                      errorWidget: (context,
+                                                              url, error) =>
+                                                          Icon(Icons.error),
+                                                    )
+                                                  : Container(
+                                                      width: 100.0,
+                                                      height: 100.0,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.grey[
+                                                            200], // Placeholder color
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  12),
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  12),
+                                                        ),
+                                                      ),
+                                                      child: Icon(
+                                                        Icons
+                                                            .store, // Placeholder icon when image is null
+                                                        color: Colors.grey[400],
+                                                      ),
+                                                    ),
+                                            ),
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  bottom: 6.0),
+                                                          child: Text(
+                                                            currentWarehouse
+                                                                .itemName,
+                                                            style: pjsMedium18,
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  bottom: 6.0),
+                                                          child: Text(
+                                                            currentWarehouse
+                                                                .warehouseStatus,
+                                                            style: currentWarehouse
+                                                                        .warehouseStatus ==
+                                                                    'available'
+                                                                ? pjsSemiBold14Green
+                                                                : pjsSemiBold14Red,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 6.0),
+                                                      child: Text(
+                                                        currentWarehouse
+                                                            .category,
+                                                        style: pjsMedium16Grey,
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 6.0),
+                                                      child: Row(
+                                                        children: [
+                                                          Text(
+                                                              formatRupiah(
+                                                                  currentWarehouse
+                                                                      .pricePerMonth),
+                                                              style:
+                                                                  pjsMedium16Tosca2),
+                                                          Spacer(),
+                                                          Icon(Icons.star,
+                                                              color:
+                                                                  Colors.amber,
+                                                              size: 20),
+                                                          Text(
+                                                            ' (4.8)',
+                                                            style: TextStyle(
+                                                                fontSize: 14),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  );
-                                },
-                              );
-                            }).toList(),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                           );
                         }
                       },
