@@ -11,7 +11,6 @@ import 'package:warebox_seller/utils/custom_themes.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 
-
 class MyWarehousePage extends StatefulWidget {
   const MyWarehousePage({Key? key}) : super(key: key);
 
@@ -321,13 +320,31 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 6.0),
-                                      child: Text(
-                                        currentWarehouse.itemName,
-                                        style: pjsMedium18,
-                                      ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 6.0),
+                                          child: Text(
+                                            currentWarehouse.itemName,
+                                            style: pjsMedium18,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 6.0),
+                                          child: Text(
+                                            currentWarehouse.warehouseStatus,
+                                            style: currentWarehouse
+                                                        .warehouseStatus ==
+                                                    'available'
+                                                ? pjsSemiBold14Green
+                                                : pjsSemiBold14Red,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
