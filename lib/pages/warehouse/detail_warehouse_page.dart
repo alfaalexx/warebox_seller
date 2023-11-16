@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:warebox_seller/utils/custom_themes.dart';
 import 'package:intl/intl.dart';
 import 'package:expandable/expandable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../utils/color_resources.dart';
 
@@ -26,6 +27,10 @@ class DetailWarehousePage extends StatefulWidget {
 class _DetailWarehousePageState extends State<DetailWarehousePage> {
   Stream<DocumentSnapshot>? warehouseStream;
   Warehouse? warehouse;
+
+  String? getCurrentUserUid() {
+    return FirebaseAuth.instance.currentUser?.uid;
+  }
 
   @override
   void initState() {
@@ -173,6 +178,8 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool canEditDelete = getCurrentUserUid() == warehouse?.uid;
+
     // Check if warehouse is loaded
     if (warehouse == null) {
       return Scaffold(
@@ -195,19 +202,21 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
           iconTheme: IconThemeData(color: Colors.black),
           actions: <Widget>[
             // Icon Button Untuk Edit Warehouse
-            IconButton(
-              icon: Icon(Icons.edit, color: Colors.blueAccent),
-              onPressed: () {
-                _navigateAndEditWarehouse(context);
-              },
-            ),
-            // Icon Button untuk Hapus Warehouse
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                _deleteWarehouse(context);
-              },
-            ),
+            if (canEditDelete)
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.blueAccent),
+                onPressed: () {
+                  _navigateAndEditWarehouse(context);
+                },
+              ),
+            if (canEditDelete)
+              // Icon Button untuk Hapus Warehouse
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () {
+                  _deleteWarehouse(context);
+                },
+              ),
           ],
         ),
         body: SingleChildScrollView(
