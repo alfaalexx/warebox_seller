@@ -12,6 +12,7 @@ import 'package:warebox_seller/pages/home/warehouse_category/custom_category_but
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:warebox_seller/utils/warebox_icon_icons.dart';
 import 'package:warebox_seller/pages/warehouse/category_warehouse_page.dart';
+import 'package:warebox_seller/pages/warehouse/all_warehouse_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -378,6 +379,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           GestureDetector(
                             onTap: () {
                               // click action
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AllWarehousesPage(),
+                                ),
+                              );
                             },
                             child: Text(
                               "See All",
