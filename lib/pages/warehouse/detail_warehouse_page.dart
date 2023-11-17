@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:warebox_seller/model/warehouse_model.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:warebox_seller/pages/payment/payment_warehouse_page.dart';
 import 'package:warebox_seller/pages/warehouse/edit_warehouse_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -38,17 +39,52 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
     _loadWarehouseData();
   }
 
-  @override
-  void dispose() {
-    // Hentikan listener atau callback lainnya di sini
-
-    super.dispose();
-  }
-
   String formatRupiah(double value) {
     final formatter = NumberFormat.currency(
         locale: 'id_ID', symbol: 'Rp. ', decimalDigits: 0);
     return formatter.format(value);
+  }
+
+  Future<void> handleCheckout() async {
+    int _selectedIndex = 0;
+
+    // Membuat objek data yang akan disimpan
+    Map<String, dynamic> reservationData = {
+      'documentId': warehouse?.id,
+      'durationType': _selectedIndex == 0
+          ? '1 Week'
+          : _selectedIndex == 1
+              ? '1 Month'
+              : '1 Year',
+      'userUid': getCurrentUserUid(),
+      // Tambahkan field lainnya yang perlu disimpan
+    };
+
+    // Menyimpan data ke koleksi "reservation"
+    try {
+      // Menyimpan data reservasi ke Firebase
+      await FirebaseFirestore.instance
+          .collection('reservations')
+          .add(reservationData);
+
+      // Menampilkan snackbar atau pesan sukses
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Reservation successful!'),
+        ),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              PaymentWarehousePage(), // Gantilah dengan halaman pembayaran yang sesuai
+        ),
+      );
+    } catch (e) {
+      // Menampilkan pesan atau log error
+      print('Error during reservation: $e');
+    }
   }
 
   Future<void> deleteWarehouseImages(List<String> imageUrls) async {
@@ -546,10 +582,90 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
           ),
         ),
         bottomNavigationBar: Padding(
-          padding: EdgeInsets.all(10.0), // Add some padding if needed
+          padding: EdgeInsets.all(10.0),
           child: ElevatedButton(
             onPressed: () {
-              // Your button press code here
+              int _selectedIndex = 0; // Pindahkan deklarasi ke sini
+
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                      return Container(
+                        padding: EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            // Price display
+                            Text(
+                              () {
+                                switch (_selectedIndex) {
+                                  case 0:
+                                    return '${formatRupiah(warehouse?.pricePerWeek ?? 0)}';
+                                  case 1:
+                                    return '${formatRupiah(warehouse?.pricePerMonth ?? 0)}';
+                                  case 2:
+                                    return '${formatRupiah(warehouse?.pricePerYear ?? 0)}';
+                                  default:
+                                    return ''; // Handle other cases if needed
+                                }
+                              }(),
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            // Duration type section with spaced buttons
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(3, (index) {
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: ChoiceChip(
+                                    label: Text(
+                                      index == 0
+                                          ? '1 Week'
+                                          : index == 1
+                                              ? '1 Month'
+                                              : '1 Year',
+                                    ),
+                                    selected: _selectedIndex == index,
+                                    onSelected: (bool selected) {
+                                      setState(() {
+                                        if (selected) {
+                                          _selectedIndex = index;
+                                        }
+                                      });
+                                      // Handle duration change
+                                    },
+                                  ),
+                                );
+                              }),
+                            ),
+                            SizedBox(height: 20),
+                            // Checkout button
+                            ElevatedButton(
+                              onPressed: () {
+                                // Handle checkout action
+                                handleCheckout(); // Panggil fungsi handleCheckout()
+                                Navigator.of(context)
+                                    .pop(); // Tutup bottom sheet setelah checkout
+                              },
+                              child: Text('Checkout'),
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size.fromHeight(
+                                    50), // sets the height of the button
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
             },
             child: Text('Reservation', style: pjsExtraBold20),
             style: ElevatedButton.styleFrom(
@@ -557,7 +673,7 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
               minimumSize: const Size(double.infinity, 60),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-              ), // Set the button size
+              ),
             ),
           ),
         ),
