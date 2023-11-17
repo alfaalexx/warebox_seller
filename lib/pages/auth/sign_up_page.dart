@@ -47,7 +47,16 @@ class _RegisterPageState extends State<RegisterPage> {
         'uid': userCredential.user!.uid,
         'name': _name,
         'email': _email,
-        'isAdmin': true,
+        'isAdmin': false,
+      });
+
+      await FirebaseFirestore.instance
+          .collection('profile')
+          .doc(userCredential.user!.uid)
+          .set({
+        'uid': userCredential.user!.uid,
+        'username': _name,
+        'email': _email,
       });
 
       // Beralih ke halaman login (atau tindakan yang sesuai).
