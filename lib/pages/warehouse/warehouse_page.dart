@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:warebox_seller/pages/category/category_screen.dart';
+// import 'package:warebox_seller/pages/category/category_screen.dart';
 import 'package:warebox_seller/pages/profile/edit_profile_page.dart';
 import 'package:warebox_seller/pages/warehouse/add_warehouse_page.dart';
 import 'package:warebox_seller/pages/warehouse/detail_warehouse_page.dart';
 import 'package:warebox_seller/model/warehouse_model.dart';
+import 'package:warebox_seller/widget/drawer_content_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:warebox_seller/utils/custom_themes.dart';
@@ -132,38 +133,39 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color(0xFF2E9496),
-              ),
-              child: const Text(
-                'Menu',
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.category),
-              title: const Text('Tambah Kategori'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CategoriesScreen(),
-                  ),
-                );
-              },
-            ),
-            // Add more drawer items if needed
-          ],
-        ),
-      ),
+      drawer: DrawerContentPage(),
+      // Drawer(
+      //   child: ListView(
+      //     padding: EdgeInsets.zero,
+      //     children: <Widget>[
+      //       DrawerHeader(
+      //         decoration: const BoxDecoration(
+      //           color: Color(0xFF2E9496),
+      //         ),
+      //         child: const Text(
+      //           'Menu',
+      //           style: TextStyle(
+      //             fontSize: 24,
+      //             color: Colors.white,
+      //           ),
+      //         ),
+      //       ),
+      //       ListTile(
+      //         leading: const Icon(Icons.category),
+      //         title: const Text('Tambah Kategori'),
+      //         onTap: () {
+      //           Navigator.push(
+      //             context,
+      //             MaterialPageRoute(
+      //               builder: (context) => const CategoriesScreen(),
+      //             ),
+      //           );
+      //         },
+      //       ),
+      //       // Add more drawer items if needed
+      //     ],
+      //   ),
+      // ),
       body: Column(
         children: [
           Padding(

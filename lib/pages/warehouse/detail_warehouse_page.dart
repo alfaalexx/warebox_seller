@@ -38,6 +38,13 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
     _loadWarehouseData();
   }
 
+  @override
+  void dispose() {
+    // Hentikan listener atau callback lainnya di sini
+
+    super.dispose();
+  }
+
   String formatRupiah(double value) {
     final formatter = NumberFormat.currency(
         locale: 'id_ID', symbol: 'Rp. ', decimalDigits: 0);

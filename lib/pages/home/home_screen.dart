@@ -13,6 +13,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:warebox_seller/utils/warebox_icon_icons.dart';
 import 'package:warebox_seller/pages/warehouse/category_warehouse_page.dart';
 import 'package:warebox_seller/pages/warehouse/all_warehouse_page.dart';
+import 'package:warebox_seller/widget/drawer_content_page.dart';
 import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -32,6 +33,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   TextEditingController searchController = TextEditingController();
   final CarouselController _carouselController = CarouselController();
+
+  @override
+  void dispose() {
+    // Hentikan listener atau callback lainnya di sini
+    searchController.dispose();
+    super.dispose();
+  }
 
   final List<String> imageList = [
     "assets/images/image1.jpg",
@@ -144,14 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            // Add more drawer items if needed
-          ],
-        ),
-      ),
+      drawer: DrawerContentPage(),
       body: SingleChildScrollView(
           child: Column(
         children: [

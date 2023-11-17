@@ -46,6 +46,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
     loadProfileData();
   }
 
+  @override
+  void dispose() {
+    // Hentikan listener atau callback lainnya di sini
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneNumberController.dispose();
+    _addressController.dispose();
+    _aboutMeController.dispose();
+    super.dispose();
+  }
+
   void loadProfileData() {
     final User? user = _auth.currentUser;
     if (user != null) {

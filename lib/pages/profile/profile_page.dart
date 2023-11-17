@@ -79,14 +79,6 @@ class _ProfilePageState extends State<ProfilePage> {
         elevation: 0,
         leading: Align(
           alignment: const AlignmentDirectional(0.00, 0.00),
-          child: IconButton(
-            icon: const Icon(
-              Icons.menu,
-              color: Colors.black,
-              size: 24,
-            ),
-            onPressed: () {},
-          ),
         ),
         title: Align(
           alignment: const AlignmentDirectional(0.00, 0.00),
