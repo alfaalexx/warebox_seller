@@ -173,7 +173,7 @@ class _MyWarehousePageState extends State<MyWarehousePage> {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Search Warehouse',
+                hintText: 'Search My Warehouse',
                 hintStyle: pjsMedium16Grey,
                 filled: true,
                 fillColor: Color(0xFFF2F2F2),

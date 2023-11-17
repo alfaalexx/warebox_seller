@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:warebox_seller/pages/auth/sign_in_page.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DrawerContentPage extends StatefulWidget {
   const DrawerContentPage({super.key});
@@ -117,6 +118,7 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
             ],
           ),
         ),
+        const SizedBox(height: 10),
         Container(
           height: 60,
           child: Material(
@@ -130,12 +132,12 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ImageIcon(AssetImage("assets/images/payments_1.png"),
-                        color: Color(0xFF11A6A1)),
+                    Icon(FontAwesomeIcons.warehouse,
+                        color: Color(0xFF11A6A1), size: 18),
                     Padding(
                       padding: const EdgeInsets.only(left: 30.0),
                       child: Text(
-                        "Payments",
+                        "My Reservation",
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w400,
                           fontSize: 18,
@@ -152,9 +154,43 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
             ),
           ),
         ),
-        const SizedBox(
-          height: 10,
+        const SizedBox(height: 10),
+        Container(
+          height: 60,
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(12.0),
+            child: InkWell(
+              onTap: () {
+                // Add your payment functionality here
+              },
+              child: ListTile(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(FontAwesomeIcons.moneyBillTransfer,
+                        color: Color(0xFF11A6A1), size: 18),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30.0),
+                      child: Text(
+                        "Recent Payments",
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 18,
+                          color: const Color(0xFF2E9496),
+                        ),
+                      ),
+                    ),
+                    Spacer(),
+                    ImageIcon(AssetImage("assets/images/arrow_left_side.png"),
+                        color: Color(0xFF11A6A1))
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
+        const SizedBox(height: 10),
         Container(
           height: 60,
           child: Material(
@@ -178,8 +214,8 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ImageIcon(AssetImage("assets/images/logout_side.png"),
-                        color: Color(0xFF11A6A1)),
+                    Icon(FontAwesomeIcons.arrowRightFromBracket,
+                        color: Color(0xFF11A6A1), size: 18),
                     Padding(
                       padding: const EdgeInsets.only(left: 30.0),
                       child: Text(
