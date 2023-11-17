@@ -45,27 +45,58 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
     return formatter.format(value);
   }
 
-  Future<void> handleCheckout() async {
-    int _selectedIndex = 0;
-
+  Future<void> handleCheckout(int selectedIndex) async {
     // Membuat objek data yang akan disimpan
+    String durationType = selectedIndex == 0
+        ? '1 Week'
+        : selectedIndex == 1
+            ? '1 Month'
+            : '1 Year';
+
     Map<String, dynamic> reservationData = {
-      'documentId': warehouse?.id,
-      'durationType': _selectedIndex == 0
-          ? '1 Week'
-          : _selectedIndex == 1
-              ? '1 Month'
-              : '1 Year',
+      'warehouseId': warehouse?.id,
+      'durationType': durationType,
       'userUid': getCurrentUserUid(),
+      'status': 'Not Active',
+      'isPaid': false,
+      'paymentStatus': 'Unpaid',
       // Tambahkan field lainnya yang perlu disimpan
     };
 
     // Menyimpan data ke koleksi "reservation"
     try {
       // Menyimpan data reservasi ke Firebase
-      await FirebaseFirestore.instance
+      DocumentReference reservationRef = await FirebaseFirestore.instance
           .collection('reservations')
           .add(reservationData);
+
+      double warehousePrice = 0.0;
+
+      // Menentukan harga berdasarkan durationType
+      switch (durationType) {
+        case '1 Week':
+          warehousePrice = warehouse?.pricePerWeek ?? 0.0;
+          break;
+        case '1 Month':
+          warehousePrice = warehouse?.pricePerMonth ?? 0.0;
+          break;
+        case '1 Year':
+          warehousePrice = warehouse?.pricePerYear ?? 0.0;
+          break;
+        // Tambahkan case lain jika diperlukan
+      }
+
+      // Menyimpan data pembayaran ke koleksi "payment"
+      Map<String, dynamic> paymentData = {
+        'userUid': getCurrentUserUid(),
+        'reservationId': reservationRef.id,
+        'warehousePrice': warehousePrice,
+        'paymentMethod': 'Transfer Qris',
+        'status': 'Unpaid',
+        // Tambahkan field lainnya yang perlu disimpan
+      };
+
+      await FirebaseFirestore.instance.collection('payments').add(paymentData);
 
       // Menampilkan snackbar atau pesan sukses
       ScaffoldMessenger.of(context).showSnackBar(
@@ -77,8 +108,9 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              PaymentWarehousePage(), // Gantilah dengan halaman pembayaran yang sesuai
+          builder: (context) => PaymentWarehousePage(
+            reservationID: reservationRef.id,
+          ), // Gantilah dengan halaman pembayaran yang sesuai
         ),
       );
     } catch (e) {
@@ -633,11 +665,11 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
                                     ),
                                     selected: _selectedIndex == index,
                                     onSelected: (bool selected) {
-                                      setState(() {
-                                        if (selected) {
+                                      if (selected) {
+                                        setState(() {
                                           _selectedIndex = index;
-                                        }
-                                      });
+                                        });
+                                      }
                                       // Handle duration change
                                     },
                                   ),
@@ -649,9 +681,9 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
                             ElevatedButton(
                               onPressed: () {
                                 // Handle checkout action
-                                handleCheckout(); // Panggil fungsi handleCheckout()
-                                Navigator.of(context)
-                                    .pop(); // Tutup bottom sheet setelah checkout
+                                handleCheckout(
+                                    _selectedIndex); // Panggil fungsi handleCheckout()
+                                Navigator.of(context).pop();
                               },
                               child: Text('Checkout'),
                               style: ElevatedButton.styleFrom(

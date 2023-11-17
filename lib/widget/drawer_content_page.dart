@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:warebox_seller/pages/auth/sign_in_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:warebox_seller/pages/reservation/list_reservation_page.dart';
 
 class DrawerContentPage extends StatefulWidget {
   const DrawerContentPage({super.key});
@@ -67,38 +68,31 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
           color: Colors.transparent, // Background color
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(18.0),
-                child: Container(
-                  width: 70,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Color(0xFF2E9496), // Warna border
-                      width: 2, // Lebar border
-                    ),
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Color(0xFF2E9496), // Warna border
+                    width: 2, // Lebar border
                   ),
-                  child: profileImageUrl.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: profileImageUrl,
-                          placeholder: (context, url) => SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.0,
-                                color: Colors.black,
-                              )),
-                          errorWidget: (context, url, error) => Icon(
-                            Icons.error,
-                            color: Colors.red,
-                          ),
-                          width: 70,
-                          height: 70,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset("assets/images/logo.png",
-                          width: 70, height: 70),
+                ),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(2, 2, 2, 2),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: profileImageUrl.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: profileImageUrl,
+                            placeholder: (context, url) =>
+                                CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset("assets/images/logo.png"),
+                  ),
                 ),
               ),
               Container(
@@ -127,6 +121,12 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
             child: InkWell(
               onTap: () {
                 // Add your payment functionality here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyReservationPage(),
+                  ),
+                );
               },
               child: ListTile(
                 title: Row(
