@@ -28,17 +28,11 @@ class DetailReservationPage extends StatelessWidget {
         Reservation reservationData =
             Reservation.fromSnapshot(reservationSnapshot);
 
-        // Check if the reservation has a payment ID
-// Note: The error message suggests that reservationData.paymentId is never null
-// so you can safely remove the null check.
-// if (reservationData.paymentId != null) {
-// If the reservation has a payment ID, delete the payment document
         DocumentReference paymentRef = FirebaseFirestore.instance
             .collection('payments')
             .doc(reservationData.paymentId);
 
         batch.delete(paymentRef);
-// }
       }
 
       // Delete the reservation document
