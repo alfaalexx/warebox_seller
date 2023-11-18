@@ -53,18 +53,31 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
             ? '1 Month'
             : '1 Year';
 
-    Map<String, dynamic> reservationData = {
-      'warehouseId': warehouse?.id,
-      'durationType': durationType,
-      'userUid': getCurrentUserUid(),
-      'status': 'Not Active',
-      'isPaid': false,
-      'paymentStatus': 'Unpaid',
-      // Tambahkan field lainnya yang perlu disimpan
-    };
+    // Deklarasi reservationData di sini dengan nilai awal null
+    Map<String, dynamic> reservationData;
 
-    // Menyimpan data ke koleksi "reservation"
+    DocumentReference paymentRef;
+
     try {
+      // Menyimpan data pembayaran ke koleksi "payment"
+      paymentRef = await FirebaseFirestore.instance.collection('payments').add({
+        'userUid': getCurrentUserUid(),
+        'warehousePrice': 0.0, // Tentukan nilai default atau sesuaikan
+        'paymentMethod': 'Transfer Qris',
+        'status': 'Unpaid',
+      });
+
+      // Menginisialisasi reservationData setelah mendapatkan paymentRef
+      reservationData = {
+        'warehouseId': warehouse?.id,
+        'durationType': durationType,
+        'userUid': getCurrentUserUid(),
+        'status': 'Not Active',
+        'isPaid': false,
+        'paymentStatus': 'Unpaid',
+        'paymentId': paymentRef.id,
+      };
+
       // Menyimpan data reservasi ke Firebase
       DocumentReference reservationRef = await FirebaseFirestore.instance
           .collection('reservations')
