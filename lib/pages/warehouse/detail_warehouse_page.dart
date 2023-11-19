@@ -630,89 +630,93 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
         bottomNavigationBar: Padding(
           padding: EdgeInsets.all(10.0),
           child: ElevatedButton(
-            onPressed: () {
-              int _selectedIndex = 0; // Pindahkan deklarasi ke sini
+            onPressed: warehouse?.warehouseStatus != 'not available'
+                ? () {
+                    int _selectedIndex = 0; // Move the declaration here
 
-              showModalBottomSheet(
-                context: context,
-                builder: (BuildContext context) {
-                  return StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
-                      return Container(
-                        padding: EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            // Price display
-                            Text(
-                              () {
-                                switch (_selectedIndex) {
-                                  case 0:
-                                    return '${formatRupiah(warehouse?.pricePerWeek ?? 0)}';
-                                  case 1:
-                                    return '${formatRupiah(warehouse?.pricePerMonth ?? 0)}';
-                                  case 2:
-                                    return '${formatRupiah(warehouse?.pricePerYear ?? 0)}';
-                                  default:
-                                    return ''; // Handle other cases if needed
-                                }
-                              }(),
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 20),
-                            // Duration type section with spaced buttons
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(3, (index) {
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 8),
-                                  child: ChoiceChip(
-                                    label: Text(
-                                      index == 0
-                                          ? '1 Week'
-                                          : index == 1
-                                              ? '1 Month'
-                                              : '1 Year',
-                                    ),
-                                    selected: _selectedIndex == index,
-                                    onSelected: (bool selected) {
-                                      if (selected) {
-                                        setState(() {
-                                          _selectedIndex = index;
-                                        });
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return StatefulBuilder(
+                          builder:
+                              (BuildContext context, StateSetter setState) {
+                            return Container(
+                              padding: EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  // Price display
+                                  Text(
+                                    () {
+                                      switch (_selectedIndex) {
+                                        case 0:
+                                          return '${formatRupiah(warehouse?.pricePerWeek ?? 0)}';
+                                        case 1:
+                                          return '${formatRupiah(warehouse?.pricePerMonth ?? 0)}';
+                                        case 2:
+                                          return '${formatRupiah(warehouse?.pricePerYear ?? 0)}';
+                                        default:
+                                          return ''; // Handle other cases if needed
                                       }
-                                      // Handle duration change
-                                    },
+                                    }(),
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                );
-                              }),
-                            ),
-                            SizedBox(height: 20),
-                            // Checkout button
-                            ElevatedButton(
-                              onPressed: () {
-                                // Handle checkout action
-                                handleCheckout(
-                                    _selectedIndex); // Panggil fungsi handleCheckout()
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('Checkout'),
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: Size.fromHeight(
-                                    50), // sets the height of the button
+                                  SizedBox(height: 20),
+                                  // Duration type section with spaced buttons
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(3, (index) {
+                                      return Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(horizontal: 8),
+                                        child: ChoiceChip(
+                                          label: Text(
+                                            index == 0
+                                                ? '1 Week'
+                                                : index == 1
+                                                    ? '1 Month'
+                                                    : '1 Year',
+                                          ),
+                                          selected: _selectedIndex == index,
+                                          onSelected: (bool selected) {
+                                            if (selected) {
+                                              setState(() {
+                                                _selectedIndex = index;
+                                              });
+                                            }
+                                            // Handle duration change
+                                          },
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                  SizedBox(height: 20),
+                                  // Checkout button
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Handle checkout action
+                                      handleCheckout(
+                                          _selectedIndex); // Call the handleCheckout() function
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Checkout'),
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: Size.fromHeight(
+                                          50), // sets the height of the button
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
+                : null, // Set onPressed to null when warehouse?.status is 'not available'
             child: Text('Reservation', style: pjsExtraBold20),
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorResources.wareboxTosca,
