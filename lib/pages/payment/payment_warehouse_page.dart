@@ -201,7 +201,7 @@ class _PaymentWarehousePageState extends State<PaymentWarehousePage> {
     } else
       return Scaffold(
         body: Center(
-          child: Text('Unauthorized Access'),
+          child: CircularProgressIndicator(),
         ),
       );
   }

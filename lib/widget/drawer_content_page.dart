@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:warebox_seller/pages/auth/sign_in_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:warebox_seller/pages/payment/list_payment_page.dart';
 import 'package:warebox_seller/pages/reservation/list_reservation_page.dart';
 
 class DrawerContentPage extends StatefulWidget {
@@ -163,6 +164,12 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
             child: InkWell(
               onTap: () {
                 // Add your payment functionality here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyPaymentPage(),
+                  ),
+                );
               },
               child: ListTile(
                 title: Row(
