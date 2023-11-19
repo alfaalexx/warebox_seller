@@ -57,8 +57,6 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
     DocumentReference paymentRef =
         FirebaseFirestore.instance.collection('payments').doc();
 
-    String paymentId = paymentRef.id;
-
     // Deklarasi reservationData setelah mendapatkan paymentRef
     Map<String, dynamic> reservationData = {
       'warehouseId': warehouse?.id,
