@@ -96,6 +96,7 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
       Map<String, dynamic> paymentData = {
         'userUid': getCurrentUserUid(),
         'reservationId': reservationRef.id,
+        'durationType': durationType,
         'warehousePrice': warehousePrice,
         'serviceFee': serviceFee,
         'totalAmount': warehousePrice + serviceFee,

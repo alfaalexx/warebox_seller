@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:warebox_seller/pages/auth/sign_in_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:warebox_seller/pages/payment/list_payment_page.dart';
+import 'package:warebox_seller/pages/payment/verify_payment_page.dart';
 import 'package:warebox_seller/pages/reservation/list_reservation_page.dart';
 
 class DrawerContentPage extends StatefulWidget {
@@ -21,6 +22,7 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
   String displayName = "Loading...";
   String email = "Loading...";
   String profileImageUrl = "";
+  bool isAdmin = false;
 
   @override
   void initState() {
@@ -47,8 +49,8 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
         setState(() {
           displayName = data['username'];
           email = data['email'];
-          profileImageUrl = data['profile_image'] ??
-              ""; // Ambil URL gambar profil jika tersedia
+          profileImageUrl = data['profile_image'] ?? "";
+          isAdmin = data['isAdmin'] ?? false;
         });
       } else {
         print('Data profil tidak ditemukan');
@@ -197,6 +199,48 @@ class _DrawerContentPageState extends State<DrawerContentPage> {
             ),
           ),
         ),
+        if (isAdmin)
+          Container(
+            height: 60,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12.0),
+              child: InkWell(
+                onTap: () {
+                  // Add your payment functionality here
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VerifyPaymentPage(),
+                    ),
+                  );
+                },
+                child: ListTile(
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Icon(FontAwesomeIcons.check,
+                          color: Color(0xFF11A6A1), size: 18),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 30.0),
+                        child: Text(
+                          "Verify Payments",
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 18,
+                            color: const Color(0xFF2E9496),
+                          ),
+                        ),
+                      ),
+                      Spacer(),
+                      ImageIcon(AssetImage("assets/images/arrow_left_side.png"),
+                          color: Color(0xFF11A6A1))
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         const SizedBox(height: 10),
         Container(
           height: 60,

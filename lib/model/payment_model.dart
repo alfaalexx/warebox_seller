@@ -11,6 +11,7 @@ class Payment {
   final double serviceFee;
   final double totalAmount;
   final bool isPaid;
+  String durationType;
 
   Payment({
     required this.id,
@@ -23,6 +24,7 @@ class Payment {
     required this.serviceFee,
     required this.totalAmount,
     required this.isPaid,
+    required this.durationType,
   });
 
   // Tambahkan konstruktor dari dokumen snapshot
@@ -38,6 +40,7 @@ class Payment {
         paymentReceiptImageUrl: data['paymentReceiptImageUrl'],
         totalAmount: data['totalAmount'],
         isPaid: data['isPaid'],
+        durationType: data['durationType'],
         serviceFee: data['serviceFee']);
   }
 }
