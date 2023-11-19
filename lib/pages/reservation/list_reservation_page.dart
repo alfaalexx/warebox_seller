@@ -30,56 +30,61 @@ class _MyReservationPageState extends State<MyReservationPage> {
                       .map((DocumentSnapshot document) =>
                           Reservation.fromSnapshot(document))
                       .toList();
-
-                  return ListView.builder(
-                    itemCount: reservations.length,
-                    itemBuilder: (context, index) {
-                      Reservation reservation = reservations[index];
-                      return Card(
-                        child: ListTile(
-                          title:
-                              Text('Warehouse ID: ${reservation.warehouseId}'),
-                          subtitle: Text(
-                              'Duration Type: ${reservation.durationType}'),
-                          onTap: () {
-                            // Check if the reservation belongs to the current user
-                            if (reservation.userUid == currentUser!.uid) {
-                              // Navigate to detail page with reservation data
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailReservationPage(
-                                    reservation: reservation,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              // Show an error message or handle unauthorized access
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text('Unauthorized Access'),
-                                    content: Text(
-                                      'You do not have permission to view this reservation.',
+                  if (reservations.isNotEmpty) {
+                    return ListView.builder(
+                      itemCount: reservations.length,
+                      itemBuilder: (context, index) {
+                        Reservation reservation = reservations[index];
+                        return Card(
+                          child: ListTile(
+                            title: Text(
+                                'Warehouse ID: ${reservation.warehouseId}'),
+                            subtitle: Text(
+                                'Duration Type: ${reservation.durationType}'),
+                            onTap: () {
+                              // Check if the reservation belongs to the current user
+                              if (reservation.userUid == currentUser!.uid) {
+                                // Navigate to detail page with reservation data
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailReservationPage(
+                                      reservation: reservation,
                                     ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text('OK'),
+                                  ),
+                                );
+                              } else {
+                                // Show an error message or handle unauthorized access
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Unauthorized Access'),
+                                      content: Text(
+                                        'You do not have permission to view this reservation.',
                                       ),
-                                    ],
-                                  );
-                                },
-                              );
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  );
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('OK'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return Center(
+                      child: Text('Reservations not found'),
+                    );
+                  }
                 } else if (snapshot.hasError) {
                   return Center(
                     child: Text('Error: ${snapshot.error}'),

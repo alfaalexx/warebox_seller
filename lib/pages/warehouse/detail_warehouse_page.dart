@@ -63,7 +63,6 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
       'durationType': durationType,
       'userUid': getCurrentUserUid(),
       'status': 'Not Active',
-      'isPaid': false,
       'paymentStatus': 'Unpaid',
       'paymentId': paymentRef.id,
     };
@@ -75,6 +74,7 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
           .add(reservationData);
 
       double warehousePrice = 0.0;
+      double serviceFee = 0.0;
 
       // Menentukan harga berdasarkan durationType
       switch (durationType) {
@@ -90,13 +90,19 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
         // Tambahkan case lain jika diperlukan
       }
 
+      serviceFee = 0.01 * warehousePrice;
+
       // Menyimpan data pembayaran ke koleksi "payment"
       Map<String, dynamic> paymentData = {
         'userUid': getCurrentUserUid(),
         'reservationId': reservationRef.id,
         'warehousePrice': warehousePrice,
+        'serviceFee': serviceFee,
+        'totalAmount': warehousePrice + serviceFee,
         'paymentMethod': 'Transfer Qris',
         'status': 'Unpaid',
+        'isVerifyPayment': false,
+        'isPaid': false
         // Tambahkan field lainnya yang perlu disimpan
       };
 

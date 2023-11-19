@@ -83,6 +83,7 @@ class _PaymentWarehousePageState extends State<PaymentWarehousePage> {
           .update({
         'paymentReceiptImageUrl': downloadUrl,
         'status': 'Waiting for payment verification from WareBox Admin',
+        'isPaid': true,
         'paidDate': Timestamp.now()
       });
 
@@ -155,7 +156,6 @@ class _PaymentWarehousePageState extends State<PaymentWarehousePage> {
                   Text('Duration Type: ${reservation!.durationType}'),
                   Text('User UID: ${reservation!.userUid}'),
                   Text('Status: ${reservation!.status}'),
-                  Text('Is Paid: ${reservation!.isPaid}'),
                   Text('Payment Status: ${reservation!.paymentStatus}'),
                   SizedBox(height: 20),
                 ] else
@@ -174,6 +174,8 @@ class _PaymentWarehousePageState extends State<PaymentWarehousePage> {
                   Text('User UID: ${payment!.userUid}'),
                   Text('Reservation ID: ${payment!.reservationId}'),
                   Text('Warehouse Price: ${payment!.warehousePrice}'),
+                  Text('Service Fee: ${payment!.serviceFee}'),
+                  Text('Total Amount: ${payment!.totalAmount}'),
                   Text('Payment Method: ${payment!.paymentMethod}'),
                   Text('Status: ${payment!.status}'),
                   if (payment?.paymentReceiptImageUrl != null)

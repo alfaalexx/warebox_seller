@@ -6,7 +6,6 @@ class Reservation {
   final String durationType;
   final String userUid;
   final String status;
-  final bool isPaid;
   final String paymentStatus;
   final String paymentId;
 
@@ -16,7 +15,6 @@ class Reservation {
     required this.durationType,
     required this.userUid,
     required this.status,
-    required this.isPaid,
     required this.paymentStatus,
     required this.paymentId,
   });
@@ -30,7 +28,6 @@ class Reservation {
       durationType: data['durationType'],
       userUid: data['userUid'],
       status: data['status'],
-      isPaid: data['isPaid'],
       paymentStatus: data['paymentStatus'],
       paymentId: data['paymentId'],
     );

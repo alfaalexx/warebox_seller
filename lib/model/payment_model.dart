@@ -7,7 +7,10 @@ class Payment {
   final double warehousePrice;
   final String paymentMethod;
   final String status;
-  String? paymentReceiptImageUrl; // Buat properti tidak final
+  String? paymentReceiptImageUrl;
+  final double serviceFee;
+  final double totalAmount;
+  final bool isPaid;
 
   Payment({
     required this.id,
@@ -17,19 +20,24 @@ class Payment {
     required this.paymentMethod,
     required this.status,
     this.paymentReceiptImageUrl,
+    required this.serviceFee,
+    required this.totalAmount,
+    required this.isPaid,
   });
 
   // Tambahkan konstruktor dari dokumen snapshot
   factory Payment.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
     return Payment(
-      id: snapshot.id, // Ambil ID dari snapshot
-      userUid: data['userUid'],
-      reservationId: data['reservationId'],
-      warehousePrice: data['warehousePrice'],
-      paymentMethod: data['paymentMethod'],
-      status: data['status'],
-      paymentReceiptImageUrl: data['paymentReceiptImageUrl'],
-    );
+        id: snapshot.id, // Ambil ID dari snapshot
+        userUid: data['userUid'],
+        reservationId: data['reservationId'],
+        warehousePrice: data['warehousePrice'],
+        paymentMethod: data['paymentMethod'],
+        status: data['status'],
+        paymentReceiptImageUrl: data['paymentReceiptImageUrl'],
+        totalAmount: data['totalAmount'],
+        isPaid: data['isPaid'],
+        serviceFee: data['serviceFee']);
   }
 }

@@ -94,7 +94,7 @@ class DetailReservationPage extends StatelessWidget {
             Text('Duration Type: ${reservation.durationType}'),
             Text('User UID: ${reservation.userUid}'),
             Text('Status: ${reservation.status}'),
-            Text('Is Paid: ${reservation.isPaid}'),
+
             Text('Payment Status: ${reservation.paymentStatus}'),
             // Add more fields as needed
 

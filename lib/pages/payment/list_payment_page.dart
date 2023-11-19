@@ -24,6 +24,7 @@ class _MyPaymentPageState extends State<MyPaymentPage> {
               stream: FirebaseFirestore.instance
                   .collection('payments')
                   .where('userUid', isEqualTo: currentUser!.uid)
+                  .where('isPaid', isEqualTo: true)
                   .snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasData) {
@@ -31,32 +32,37 @@ class _MyPaymentPageState extends State<MyPaymentPage> {
                       .map((DocumentSnapshot document) =>
                           Payment.fromSnapshot(document))
                       .toList();
-
-                  return ListView.builder(
-                    itemCount: payments.length,
-                    itemBuilder: (context, index) {
-                      Payment payment = payments[index];
-                      return Card(
-                        child: ListTile(
-                          title:
-                              Text('Reservation ID: ${payment.reservationId}'),
-                          subtitle: Text(
-                              'Warehouse Price: ${payment.warehousePrice}'),
-                          onTap: () {
-                            // Navigate to payment detail page with payment data
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailPaymentPage(
-                                  payment: payment,
+                  if (payments.isNotEmpty) {
+                    return ListView.builder(
+                      itemCount: payments.length,
+                      itemBuilder: (context, index) {
+                        Payment payment = payments[index];
+                        return Card(
+                          child: ListTile(
+                            title: Text(
+                                'Reservation ID: ${payment.reservationId}'),
+                            subtitle: Text(
+                                'Warehouse Price: ${payment.warehousePrice}'),
+                            onTap: () {
+                              // Navigate to payment detail page with payment data
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPaymentPage(
+                                    payment: payment,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  );
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return Center(
+                      child: Text('Payments not found'),
+                    );
+                  }
                 } else if (snapshot.hasError) {
                   return Center(
                     child: Text('Error: ${snapshot.error}'),
