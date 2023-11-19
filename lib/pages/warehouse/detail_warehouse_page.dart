@@ -53,31 +53,24 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
             ? '1 Month'
             : '1 Year';
 
-    // Deklarasi reservationData di sini dengan nilai awal null
-    Map<String, dynamic> reservationData;
+    // Menyimpan data pembayaran ke koleksi "payment"
+    DocumentReference paymentRef =
+        FirebaseFirestore.instance.collection('payments').doc();
 
-    DocumentReference paymentRef;
+    String paymentId = paymentRef.id;
+
+    // Deklarasi reservationData setelah mendapatkan paymentRef
+    Map<String, dynamic> reservationData = {
+      'warehouseId': warehouse?.id,
+      'durationType': durationType,
+      'userUid': getCurrentUserUid(),
+      'status': 'Not Active',
+      'isPaid': false,
+      'paymentStatus': 'Unpaid',
+      'paymentId': paymentRef.id,
+    };
 
     try {
-      // Menyimpan data pembayaran ke koleksi "payment"
-      paymentRef = await FirebaseFirestore.instance.collection('payments').add({
-        'userUid': getCurrentUserUid(),
-        'warehousePrice': 0.0, // Tentukan nilai default atau sesuaikan
-        'paymentMethod': 'Transfer Qris',
-        'status': 'Unpaid',
-      });
-
-      // Menginisialisasi reservationData setelah mendapatkan paymentRef
-      reservationData = {
-        'warehouseId': warehouse?.id,
-        'durationType': durationType,
-        'userUid': getCurrentUserUid(),
-        'status': 'Not Active',
-        'isPaid': false,
-        'paymentStatus': 'Unpaid',
-        'paymentId': paymentRef.id,
-      };
-
       // Menyimpan data reservasi ke Firebase
       DocumentReference reservationRef = await FirebaseFirestore.instance
           .collection('reservations')
@@ -109,7 +102,10 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
         // Tambahkan field lainnya yang perlu disimpan
       };
 
-      await FirebaseFirestore.instance.collection('payments').add(paymentData);
+      await FirebaseFirestore.instance
+          .collection('payments')
+          .doc(paymentRef.id)
+          .set(paymentData);
 
       // Menampilkan snackbar atau pesan sukses
       ScaffoldMessenger.of(context).showSnackBar(
@@ -123,7 +119,7 @@ class _DetailWarehousePageState extends State<DetailWarehousePage> {
         MaterialPageRoute(
           builder: (context) => PaymentWarehousePage(
             reservationID: reservationRef.id,
-          ), // Gantilah dengan halaman pembayaran yang sesuai
+          ),
         ),
       );
     } catch (e) {
