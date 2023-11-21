@@ -48,6 +48,27 @@ final TextStyle pjsSemiBold14 = GoogleFonts.plusJakartaSans(
   color: Color(0xFF1E2022),
 );
 
+final TextStyle pjsSemiBold14Ls = GoogleFonts.plusJakartaSans(
+  fontSize: 14,
+  fontWeight: FontWeight.w600,
+  color: Color(0xFF1E2022),
+  letterSpacing: 1,
+);
+
+final TextStyle pjsSemiBold14Ls400 = GoogleFonts.plusJakartaSans(
+  fontSize: 14,
+  fontWeight: FontWeight.w400,
+  color: Color(0xFF1E2022),
+  letterSpacing: 1,
+);
+
+final TextStyle pjsSemiBold14Ls400Grey = GoogleFonts.plusJakartaSans(
+  fontSize: 14,
+  fontWeight: FontWeight.w400,
+  color: Color(0xFF77838F),
+  letterSpacing: 1,
+);
+
 final TextStyle pjsSemiBold14Green = GoogleFonts.plusJakartaSans(
   fontSize: 14,
   fontWeight: FontWeight.w600,

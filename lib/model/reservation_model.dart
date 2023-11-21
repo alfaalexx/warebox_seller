@@ -8,6 +8,8 @@ class Reservation {
   final String status;
   final String paymentStatus;
   final String paymentId;
+  final DateTime? startRentDate;
+  final DateTime? endRentDate;
 
   Reservation({
     required this.id,
@@ -17,11 +19,17 @@ class Reservation {
     required this.status,
     required this.paymentStatus,
     required this.paymentId,
+    required this.startRentDate,
+    required this.endRentDate,
   });
 
   // Tambahkan konstruktor dari dokumen snapshot
   factory Reservation.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+
+    DateTime? startRentDate = (data?['startRentDate'] as Timestamp?)?.toDate();
+    DateTime? endRentDate = (data?['endRentDate'] as Timestamp?)?.toDate();
+
     return Reservation(
       id: snapshot.id,
       warehouseId: data['warehouseId'],
@@ -30,6 +38,8 @@ class Reservation {
       status: data['status'],
       paymentStatus: data['paymentStatus'],
       paymentId: data['paymentId'],
+      startRentDate: startRentDate,
+      endRentDate: endRentDate,
     );
   }
 }
