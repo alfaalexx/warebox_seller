@@ -8,8 +8,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:warebox_seller/utils/custom_themes.dart';
 import 'package:intl/intl.dart';
 
-import '../../utils/color_resources.dart';
-
 class DetailReservationPage extends StatefulWidget {
   final Reservation reservation;
 
