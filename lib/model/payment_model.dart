@@ -12,6 +12,7 @@ class Payment {
   final double totalAmount;
   final bool isPaid;
   String durationType;
+  final DateTime? paidDate;
 
   Payment({
     required this.id,
@@ -25,22 +26,28 @@ class Payment {
     required this.totalAmount,
     required this.isPaid,
     required this.durationType,
+    required this.paidDate,
   });
 
   // Tambahkan konstruktor dari dokumen snapshot
   factory Payment.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+
+    DateTime? paidDate = (data?['paidDate'] as Timestamp?)?.toDate();
+
     return Payment(
-        id: snapshot.id, // Ambil ID dari snapshot
-        userUid: data['userUid'],
-        reservationId: data['reservationId'],
-        warehousePrice: data['warehousePrice'],
-        paymentMethod: data['paymentMethod'],
-        status: data['status'],
-        paymentReceiptImageUrl: data['paymentReceiptImageUrl'],
-        totalAmount: data['totalAmount'],
-        isPaid: data['isPaid'],
-        durationType: data['durationType'],
-        serviceFee: data['serviceFee']);
+      id: snapshot.id, // Ambil ID dari snapshot
+      userUid: data['userUid'],
+      reservationId: data['reservationId'],
+      warehousePrice: data['warehousePrice'],
+      paymentMethod: data['paymentMethod'],
+      status: data['status'],
+      paymentReceiptImageUrl: data['paymentReceiptImageUrl'],
+      totalAmount: data['totalAmount'],
+      isPaid: data['isPaid'],
+      durationType: data['durationType'],
+      serviceFee: data['serviceFee'],
+      paidDate: paidDate,
+    );
   }
 }

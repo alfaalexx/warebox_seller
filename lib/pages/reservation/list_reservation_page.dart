@@ -104,8 +104,8 @@ class _MyReservationPageState extends State<MyReservationPage> {
                                           child: warehouseImageUrl.isNotEmpty
                                               ? CachedNetworkImage(
                                                   imageUrl: warehouseImageUrl,
-                                                  width: 80,
-                                                  height: 80,
+                                                  width: 90,
+                                                  height: 90,
                                                   fit: BoxFit.cover,
                                                   placeholder: (context, url) =>
                                                       CircularProgressIndicator(),
@@ -114,8 +114,8 @@ class _MyReservationPageState extends State<MyReservationPage> {
                                                           Icon(Icons.error),
                                                 )
                                               : Placeholder(
-                                                  fallbackWidth: 80,
-                                                  fallbackHeight: 80,
+                                                  fallbackWidth: 90,
+                                                  fallbackHeight: 90,
                                                 ),
                                         ),
                                         SizedBox(width: 16),
@@ -127,6 +127,11 @@ class _MyReservationPageState extends State<MyReservationPage> {
                                               Text(
                                                 '${warehouseData['itemName']}',
                                                 style: pjsMedium18,
+                                              ),
+                                              SizedBox(height: 8),
+                                              Text(
+                                                'Reservation ID: ${reservation.id}',
+                                                style: pjsMedium12Grey,
                                               ),
                                               SizedBox(height: 8),
                                               Row(
