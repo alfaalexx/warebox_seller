@@ -182,7 +182,23 @@ class DetailPaymentPage extends StatelessWidget {
                   style: pjsMedium16,
                 ),
               ),
-
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Duration Type',
+                      style: pjsSemiBold14Ls400Grey,
+                    ),
+                    Text(
+                      '${payment.durationType}',
+                      style: pjsSemiBold14,
+                    ),
+                  ],
+                ),
+              ),
               Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
                 child: Row(
